@@ -1,0 +1,7 @@
+{
+  "name": "rs-carto",
+  "short_name": "rs-carto",
+  "description": "Dashboards on research scientists publications from HAL data",
+  "start_url": "/",
+  "display": "standalone"
+}

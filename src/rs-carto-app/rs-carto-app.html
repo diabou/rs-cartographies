@@ -1,0 +1,35 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+
+<dom-module id="rs-carto-app">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+    <h2>Hello [[prop1]]!</h2>
+  </template>
+
+  <script>
+      /**
+       * @customElement
+       * @polymer
+       */
+      class RsCartoApp extends Polymer.Element {
+          static get is() {
+              return 'rs-carto-app';
+          }
+
+          static get properties() {
+              return {
+                  prop1: {
+                      type: String,
+                      value: 'rs-carto-app'
+                  }
+              };
+          }
+      }
+
+      window.customElements.define(RsCartoApp.is, RsCartoApp);
+  </script>
+</dom-module>
