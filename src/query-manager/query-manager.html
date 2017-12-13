@@ -1,0 +1,116 @@
+<dom-module id="query-manager">
+  <template>
+    <style>
+      :host {
+        @apply(--layout-flex);
+      }
+    </style>
+  </template>
+
+  <script>
+      /*
+        Urls :
+          https://api.archives-ouvertes.fr/search/MINES-NANTES?q=*&fl=authFullName_s,title_s\\&wt=xml
+          https://api.archives-ouvertes.fr/search/MINES-NANTES/?verb=ListRecords&metadataPrefix=oai_dc&facet=true&facet.field=authIdHasPrimaryStructure_fs&rows=9999&wt=xml
+      */
+
+      class QueryManager extends Polymer.Element {
+          static get is() {
+              return 'query-manager';
+          }
+
+          static get properties() {
+              return {
+                  baseURL: {
+                      type: String,
+                      value: 'http://api.archives-ouvertes.fr/oai/hal'
+                  },
+
+                  set: {
+                      type: String,
+                      value: 'collection:MINES-NANTES'
+                  },
+
+                  from: {
+                      type: String,
+                      value: null
+                  },
+
+                  until: {
+                      type: String,
+                      value: null
+                  },
+
+                  metadataPrefix: {
+                      type: String,
+                      value: 'oai_dc'
+                  },
+
+                  lastResponse: {
+                      type: Object,
+                      value: null
+                  }
+              };
+          }
+
+          get requestURL() {
+              let queryParams = '?verb=ListRecords';
+
+              if (this.metadataPrefix) {
+                  queryParams = queryParams.concat('&metadataPrefix=', this.metadataPrefix);
+              }
+              if (this.set) {
+                  queryParams = queryParams.concat('&set=', this.set);
+              }
+              if (this.from) {
+                  queryParams = queryParams.concat('&from=', this.from);
+              }
+              if (this.until) {
+                  queryParams = queryParams.concat('&until=', this.until);
+              }
+
+              return this.baseURL + queryParams;
+          }
+
+          fetchAsJSON() {
+              fetch(this.requestURL)
+                  .then(res => res.body.getReader().read())
+                  .then(arr => {
+                      //TODO un bail genre le code commenté en dessous
+                      //.then(reader => {
+//                    const stream = new ReadableStream({
+//                        start(controller) {
+//                            // The following function handles each data chunk
+//                            function push() {
+//                                // "done" is a Boolean and value a "Uint8Array"
+//                                return reader.read().then(({ done, value }) => {
+//                                    // Is there no more data to read?
+//                                    if (done) {
+//                                        // Tell the browser that we have finished sending data
+//                                        controller.close();
+//                                        return;
+//                                    }
+//
+//                                    // Get the data and send it to the browser via the controller
+//                                    console.log(value);
+//                                    controller.enqueue(value);
+//                                }).then(push);
+//                            }
+//
+//                            push();
+//                        }
+//                    });
+//
+//                    return new Response(stream, { headers: { "Content-Type": "text/html" } });
+//                })
+                      String.fromCharCode.apply(this, arr.value);
+                  })
+                  .then(xmlString => (new DOMParser()).parseFromString(xmlString, "text/xml"))
+                  .then(console.log);
+          }
+      }
+
+      window.customElements.define(QueryManager.is, QueryManager);
+
+  </script>
+</dom-module>

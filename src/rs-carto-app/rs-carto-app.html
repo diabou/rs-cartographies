@@ -1,13 +1,42 @@
 <link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/app-layout/app-header-layout/app-header-layout.html">
+<link rel="import" href="../../bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="../../bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../../bower_components/app-layout/app-grid/app-grid-style.html">
+<link rel="import" href="../query-manager/query-manager.html"/>
 
 <dom-module id="rs-carto-app">
   <template>
-    <style>
+    <style include="app-grid-style">
       :host {
-        display: block;
+        @apply(--layout-flex);
+        --app-grid-columns: 2;
+        --app-grid-item-height: 100px;
+      }
+
+      app-toolbar {
+        background-color: #0d47a1;
+        color: white;
+        font-family: 'Roboto', sans-serif;
       }
     </style>
-    <h2>Hello [[prop1]]!</h2>
+
+    <app-header-layout class="flex">
+      <app-header slot="header">
+        <app-toolbar>
+          <div main-title>[[appName]]</div>
+          <-- TODO : chosing list !-->
+        </app-toolbar>
+      </app-header>
+    </app-header-layout>
+
+    <query-manager id="query"></query-manager>
+
+    <div class="app-grid">
+
+      <-- TODO : page content !-->
+
+    </div>
   </template>
 
   <script>
@@ -22,11 +51,16 @@
 
           static get properties() {
               return {
-                  prop1: {
+                  appName: {
                       type: String,
-                      value: 'rs-carto-app'
+                      value: 'rs-carto'
                   }
               };
+          }
+
+          ready() {
+              super.ready();
+              this.$.query.fetchAsJSON();
           }
       }
 
