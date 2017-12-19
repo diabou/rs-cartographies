@@ -1,0 +1,73 @@
+<link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/web-animations-js/web-animations-next.min.html"/>
+<link rel="import" href="../query-manager/query-manager.html"/>
+
+<dom-module id="authors-menu">
+  <template>
+    <style>
+      .author {
+        cursor: pointer;
+      }
+
+      paper-dropdown-menu {
+        --paper-dropdown-menu-label: {
+          color: white;
+        };
+
+        --paper-dropdown-menu-input: {
+          color: white;
+        };
+      }
+    </style>
+
+    <query-manager
+        id="query"
+        params='{"fl":"authFullName_s"}'
+        on-response="makeAuthorsList">
+    </query-manager>
+
+    <paper-dropdown-menu label="Chose Author">
+      <paper-listbox slot="dropdown-content">
+        <template is="dom-repeat" items=[[_sortedNames]]>
+          <paper-item class="author">[[item]]</paper-item>
+        </template>
+      </paper-listbox>
+    </paper-dropdown-menu>
+
+  </template>
+
+  <script>
+      class AuthorsMenu extends Polymer.Element {
+          static get is() {
+              return 'authors-menu';
+          }
+
+          static get properties() {
+              return {
+                  _sortedNames: {
+                      type: Array,
+                      value: () => []
+                  }
+              };
+          }
+
+          ready() {
+              super.ready();
+              this.$.query.fetchAsJSON();
+          }
+
+          makeAuthorsList(e) {
+              let list = [];
+              e.detail.body.forEach(doc => {
+                  list = list.concat(doc.authFullName_s);
+              });
+              this.set('_sortedNames', list);
+          }
+      }
+
+      window.customElements.define(AuthorsMenu.is, AuthorsMenu);
+
+  </script>
+</dom-module>
