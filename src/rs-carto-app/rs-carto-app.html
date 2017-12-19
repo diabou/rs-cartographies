@@ -30,7 +30,11 @@
       </app-header>
     </app-header-layout>
 
-    <query-manager id="query"></query-manager>
+    <query-manager
+        id="query"
+        params='{"fl":"authFullName_s"}'
+        on-response='makeAuthorsList'>
+    </query-manager>
 
     <div class="app-grid">
 
@@ -61,6 +65,10 @@
           ready() {
               super.ready();
               this.$.query.fetchAsJSON();
+          }
+
+          makeAuthorsList(e) {
+              console.log(e.detail.body);
           }
       }
 

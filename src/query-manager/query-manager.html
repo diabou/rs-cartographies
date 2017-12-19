@@ -21,31 +21,41 @@
 
           static get properties() {
               return {
+                  /**
+                   * base URL of the query
+                   */
                   baseURL: {
                       type: String,
-                      value: 'http://api.archives-ouvertes.fr/oai/hal'
+                      value: 'https://api.archives-ouvertes.fr/search/'
                   },
 
-                  set: {
+                  /**
+                   * The institution to look data for
+                   */
+                  institution: {
                       type: String,
-                      value: 'collection:MINES-NANTES'
+                      value: 'MINES-NANTES'
                   },
 
-                  from: {
+                  /**
+                   * the 'q' parameter of the query
+                   */
+                  query: {
+                      type: String,
+                      value: '*'
+                  },
+
+                  /**
+                   * other optional parameters
+                   */
+                  params: {
                       type: String,
                       value: null
                   },
 
-                  until: {
-                      type: String,
-                      value: null
-                  },
-
-                  metadataPrefix: {
-                      type: String,
-                      value: 'oai_dc'
-                  },
-
+                  /**
+                   * the most recent response that came to this element
+                   */
                   lastResponse: {
                       type: Object,
                       value: null
@@ -53,60 +63,26 @@
               };
           }
 
-          get requestURL() {
-              let queryParams = '?verb=ListRecords';
+          get _requestURL() {
+              let res = this.baseURL + this.institution + '?q=' + this.query;
 
-              if (this.metadataPrefix) {
-                  queryParams = queryParams.concat('&metadataPrefix=', this.metadataPrefix);
-              }
-              if (this.set) {
-                  queryParams = queryParams.concat('&set=', this.set);
-              }
-              if (this.from) {
-                  queryParams = queryParams.concat('&from=', this.from);
-              }
-              if (this.until) {
-                  queryParams = queryParams.concat('&until=', this.until);
+              if (this.params) {
+                  const params = JSON.parse(this.params);
+                  Object.keys(params)
+                      .forEach(key => res = res.concat('&').concat(key).concat('=').concat(params[key]));
               }
 
-              return this.baseURL + queryParams;
+              return res;
           }
 
           fetchAsJSON() {
-              fetch(this.requestURL)
-                  .then(res => res.body.getReader().read())
-                  .then(arr => {
-                      //TODO un bail genre le code commenté en dessous
-                      //.then(reader => {
-//                    const stream = new ReadableStream({
-//                        start(controller) {
-//                            // The following function handles each data chunk
-//                            function push() {
-//                                // "done" is a Boolean and value a "Uint8Array"
-//                                return reader.read().then(({ done, value }) => {
-//                                    // Is there no more data to read?
-//                                    if (done) {
-//                                        // Tell the browser that we have finished sending data
-//                                        controller.close();
-//                                        return;
-//                                    }
-//
-//                                    // Get the data and send it to the browser via the controller
-//                                    console.log(value);
-//                                    controller.enqueue(value);
-//                                }).then(push);
-//                            }
-//
-//                            push();
-//                        }
-//                    });
-//
-//                    return new Response(stream, { headers: { "Content-Type": "text/html" } });
-//                })
-                      String.fromCharCode.apply(this, arr.value);
-                  })
-                  .then(xmlString => (new DOMParser()).parseFromString(xmlString, "text/xml"))
-                  .then(console.log);
+              fetch(this._requestURL)
+                  .then(res => res.json())
+                  .then(json => {
+                      const docs = json.response.docs;
+                      this.set('lastResponse', docs);
+                      this.dispatchEvent(new CustomEvent('response', {detail: {kicked: true, body: docs}}));
+                  });
           }
       }
 
