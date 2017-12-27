@@ -37,7 +37,7 @@
       <app-header slot="header">
         <app-toolbar>
           <div main-title>[[appName]]</div>
-          <authors-menu on-author-selected=_loadAuthorDashboard></authors-menu>
+          <authors-menu selected={{_currentlyViewedAuthor}}></authors-menu>
         </app-toolbar>
       </app-header>
     </app-header-layout>
@@ -47,7 +47,7 @@
         Welcome
       </div>
       <div class="app-grid">
-        [[_currentViewedAuthor]]
+        [[_currentlyViewedAuthor]]
       </div>
     </iron-pages>
 
@@ -70,16 +70,19 @@
                       value: 'rs-carto'
                   },
 
-                  _currentViewedAuthor: {
+                  _currentlyViewedAuthor: {
                       type: String,
                       value: null
                   }
               };
           }
 
+          static get observers() {
+              return ['_loadAuthorDashboard(_currentlyViewedAuthor)'];
+          }
+
           _loadAuthorDashboard(e) {
               this.$.pages.select(1);
-              this.set('_currentViewedAuthor', e.detail.authorName);
           }
       }
 

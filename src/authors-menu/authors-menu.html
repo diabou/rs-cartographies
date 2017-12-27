@@ -25,13 +25,13 @@
     <query-manager
         id="query"
         params='{"fl":"authFullName_s"}'
-        on-response="makeAuthorsList">
+        on-response=_makeAuthorsList>
     </query-manager>
 
     <paper-dropdown-menu label="Chose Author">
-      <paper-listbox slot="dropdown-content" on-selected-item-changed=_notifyAuthorSelected>
-        <template is="dom-repeat" items=[[_sortedNames]]>
-          <paper-item class="author">[[item]]</paper-item>
+      <paper-listbox slot="dropdown-content" selected-item={{_selectedItem}}>
+        <template is="dom-repeat" items=[[_sortedNames]] as="authorName">
+          <paper-item class="author">[[authorName]]</paper-item>
         </template>
       </paper-listbox>
     </paper-dropdown-menu>
@@ -39,6 +39,10 @@
   </template>
 
   <script>
+      /**
+       * @customElement
+       * @polymer
+       */
       class AuthorsMenu extends Polymer.Element {
           static get is() {
               return 'authors-menu';
@@ -46,9 +50,32 @@
 
           static get properties() {
               return {
+                  /**
+                   * List of author names (as Strings).
+                   */
                   _sortedNames: {
                       type: Array,
                       value: () => []
+                  },
+
+                  /**
+                   * HTML element containing the name of the currently selected author.
+                   */
+                  _selectedItem: {
+                      type: Object,
+                      notify: true,
+                      observer: '_setSelected',
+                      value: null
+                  },
+
+                  /**
+                   * Name of the currently selected author.
+                   */
+                  selected: {
+                      type: String,
+                      notify: true,
+                      reflectOnAttribute: true,
+                      value: null
                   }
               };
           }
@@ -58,19 +85,17 @@
               this.$.query.fetchAsJSON();
           }
 
-          makeAuthorsList(e) {
-              let list = [];
-              e.detail.body.forEach(doc => list = list.concat(doc.authFullName_s));
-              this.set('_sortedNames', list);
+          _setSelected(item) {
+              if (item) {
+                  this.set('selected', item.innerHTML);
+              }
           }
 
-          _notifyAuthorSelected(e) {
-              const value = e.detail.value;
-              if (value) {
-                  this.dispatchEvent(new CustomEvent('author-selected', {
-                      detail: {kicked: true, authorName: value.innerHTML}
-                  }));
-              }
+          _makeAuthorsList(e) {
+              this.set(
+                  '_sortedNames',
+                  Array.prototype.concat.apply([], e.detail.body.map(doc => doc.authFullName_s))
+              );
           }
       }
 
