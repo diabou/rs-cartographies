@@ -2,6 +2,7 @@
 <link rel="import" href="../../bower_components/app-layout/app-header-layout/app-header-layout.html">
 <link rel="import" href="../../bower_components/app-layout/app-header/app-header.html">
 <link rel="import" href="../../bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../../bower_components/app-layout/app-grid/app-grid-style.html">
 <link rel="import" href="../authors-menu/authors-menu.html"/>
 
@@ -24,21 +25,32 @@
       authors-menu {
         @apply(--layout-end-aligned);
       }
+
+      .home {
+        font-size: 25px;
+        text-align: center;
+        line-height: 500px;
+      }
     </style>
 
     <app-header-layout class="flex">
       <app-header slot="header">
         <app-toolbar>
           <div main-title>[[appName]]</div>
-          <authors-menu></authors-menu>
+          <authors-menu on-author-selected=_loadAuthorDashboard></authors-menu>
         </app-toolbar>
       </app-header>
     </app-header-layout>
 
-    <div class="app-grid">
-      <!-- TODO : page content -->
-      YOYOYO
-    </div>
+    <iron-pages id="pages" selected="0">
+      <div class="home">
+        Welcome
+      </div>
+      <div class="app-grid">
+        [[_currentViewedAuthor]]
+      </div>
+    </iron-pages>
+
   </template>
 
   <script>
@@ -56,8 +68,18 @@
                   appName: {
                       type: String,
                       value: 'rs-carto'
+                  },
+
+                  _currentViewedAuthor: {
+                      type: String,
+                      value: null
                   }
               };
+          }
+
+          _loadAuthorDashboard(e) {
+              this.$.pages.select(1);
+              this.set('_currentViewedAuthor', e.detail.authorName);
           }
       }
 

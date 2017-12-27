@@ -29,7 +29,7 @@
     </query-manager>
 
     <paper-dropdown-menu label="Chose Author">
-      <paper-listbox slot="dropdown-content">
+      <paper-listbox slot="dropdown-content" on-selected-item-changed=_notifyAuthorSelected>
         <template is="dom-repeat" items=[[_sortedNames]]>
           <paper-item class="author">[[item]]</paper-item>
         </template>
@@ -60,10 +60,17 @@
 
           makeAuthorsList(e) {
               let list = [];
-              e.detail.body.forEach(doc => {
-                  list = list.concat(doc.authFullName_s);
-              });
+              e.detail.body.forEach(doc => list = list.concat(doc.authFullName_s));
               this.set('_sortedNames', list);
+          }
+
+          _notifyAuthorSelected(e) {
+              const value = e.detail.value;
+              if (value) {
+                  this.dispatchEvent(new CustomEvent('author-selected', {
+                      detail: {kicked: true, authorName: value.innerHTML}
+                  }));
+              }
           }
       }
 
