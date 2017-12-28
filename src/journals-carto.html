@@ -1,0 +1,67 @@
+<dom-module id="journals-carto">
+  <template>
+    <style>
+      :host {
+        @apply(--layout-flex);
+        border: 1px solid black;
+        padding: 2px;
+      }
+    </style>
+
+    <query-manager
+        id="query"
+        query=[[authorName]]
+        params='{"fl":"journalTitle_s"}'
+        on-response=_loadVisu></query-manager>
+
+    <div>
+      <template is="dom-repeat" items="[[_journalsList]]">
+        <div>[[item]]</div>
+      </template>
+    </div>
+
+  </template>
+
+  <script>
+      /**
+       * @customElement
+       * @polymer
+       */
+      class JournalsCarto extends Polymer.Element {
+          static get is() {
+              return 'journals-carto';
+          }
+
+          static get properties() {
+              return {
+                  authorName: {
+                      type: String,
+                      observer: '_fetchJournals',
+                      value: null
+                  },
+
+                  _journalsList: {
+                      type: Array,
+                      value: () => []
+                  }
+              };
+          }
+
+          _fetchJournals() {
+              this.$.query.fetchAsJSON();
+          }
+
+          _loadVisu(e) {
+              this.set(
+                  '_journalsList',
+                  e.detail.body
+                      .map(doc => doc.journalTitle_s)
+                      .filter(title => !!title)
+              );
+          }
+      }
+
+      window.customElements.define(JournalsCarto.is, JournalsCarto);
+
+  </script>
+</dom-module>

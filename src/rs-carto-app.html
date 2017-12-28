@@ -1,10 +1,11 @@
-<link rel="import" href="../../bower_components/polymer/polymer-element.html">
-<link rel="import" href="../../bower_components/app-layout/app-header-layout/app-header-layout.html">
-<link rel="import" href="../../bower_components/app-layout/app-header/app-header.html">
-<link rel="import" href="../../bower_components/app-layout/app-toolbar/app-toolbar.html">
-<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
-<link rel="import" href="../../bower_components/app-layout/app-grid/app-grid-style.html">
-<link rel="import" href="../authors-menu/authors-menu.html"/>
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/app-layout/app-header-layout/app-header-layout.html">
+<link rel="import" href="../bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="../bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../bower_components/app-layout/app-grid/app-grid-style.html">
+<link rel="import" href="authors-menu.html"/>
+<link rel="import" href="journals-carto.html"/>
 
 <dom-module id="rs-carto-app">
   <template>
@@ -12,11 +13,12 @@
       :host {
         @apply(--layout-flex);
         --app-grid-columns: 2;
-        --app-grid-item-height: 100px;
+        --app-grid-item-height: 300px;
+        --app-grid-gutter: 3px;
       }
 
       app-toolbar {
-        background-color: #0d47a1;
+        background-color: #20c9df;
         color: white;
         font-family: 'Roboto', sans-serif;
         @apply(--layout-between-aligned);
@@ -31,6 +33,10 @@
         text-align: center;
         line-height: 500px;
       }
+
+      .app-grid {
+        margin: 2px 2px 2px 2px;
+      }
     </style>
 
     <app-header-layout class="flex">
@@ -42,12 +48,13 @@
       </app-header>
     </app-header-layout>
 
-    <iron-pages id="pages" selected="0">
+    <iron-pages id="pages" selected=0>
       <div class="home">
         Welcome
       </div>
       <div class="app-grid">
-        [[_currentlyViewedAuthor]]
+        <journals-carto author-name=[[_currentlyViewedAuthor]]></journals-carto>
+        <div>TOTOTO</div>
       </div>
     </iron-pages>
 
@@ -81,8 +88,10 @@
               return ['_loadAuthorDashboard(_currentlyViewedAuthor)'];
           }
 
-          _loadAuthorDashboard(e) {
-              this.$.pages.select(1);
+          _loadAuthorDashboard(authorName) {
+              if (authorName) {
+                  this.$.pages.select(1);
+              }
           }
       }
 
