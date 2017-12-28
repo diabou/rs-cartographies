@@ -35,12 +35,18 @@
 
           static get properties() {
               return {
+                  /**
+                   * Currently selected author whose cartography has to be displayed
+                   */
                   authorName: {
                       type: String,
                       observer: '_fetchJournals',
                       value: null
                   },
 
+                  /**
+                   * List of the journals in which this author has published
+                   */
                   _journals: {
                       type: Array,
                       value: () => []

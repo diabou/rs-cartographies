@@ -42,7 +42,7 @@
     <app-header-layout class="flex">
       <app-header slot="header">
         <app-toolbar>
-          <div main-title>[[appName]]</div>
+          <div main-title>rs-carto</div>
           <authors-menu selected={{_currentlyViewedAuthor}}></authors-menu>
         </app-toolbar>
       </app-header>
@@ -72,11 +72,10 @@
 
           static get properties() {
               return {
-                  appName: {
-                      type: String,
-                      value: 'rs-carto'
-                  },
-
+                  /**
+                   * Name of the author whose dashboard is currently viewed.
+                   * null at welcome page.
+                   */
                   _currentlyViewedAuthor: {
                       type: String,
                       value: null
