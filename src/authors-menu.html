@@ -30,8 +30,8 @@
 
     <paper-dropdown-menu label="Chose Author">
       <paper-listbox slot="dropdown-content" selected-item={{_selectedItem}}>
-        <template is="dom-repeat" items=[[_sortedNames]] as="authorName">
-          <paper-item class="author">[[authorName]]</paper-item>
+        <template is="dom-repeat" items=[[_sortedNames]]>
+          <paper-item class="author">[[item]]</paper-item>
         </template>
       </paper-listbox>
     </paper-dropdown-menu>
@@ -100,6 +100,5 @@
       }
 
       window.customElements.define(AuthorsMenu.is, AuthorsMenu);
-
   </script>
 </dom-module>

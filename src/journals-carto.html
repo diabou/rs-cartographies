@@ -12,10 +12,11 @@
         id="query"
         query=[[authorName]]
         params='{"fl":"journalTitle_s"}'
-        on-response=_loadVisu></query-manager>
+        on-response=_loadVisu>
+    </query-manager>
 
     <div>
-      <template is="dom-repeat" items="[[_journalsList]]">
+      <template is="dom-repeat" items="[[_journals]]">
         <div>[[item]]</div>
       </template>
     </div>
@@ -40,7 +41,7 @@
                       value: null
                   },
 
-                  _journalsList: {
+                  _journals: {
                       type: Array,
                       value: () => []
                   }
@@ -53,7 +54,7 @@
 
           _loadVisu(e) {
               this.set(
-                  '_journalsList',
+                  '_journals',
                   e.detail.body
                       .map(doc => doc.journalTitle_s)
                       .filter(title => !!title)
@@ -62,6 +63,5 @@
       }
 
       window.customElements.define(JournalsCarto.is, JournalsCarto);
-
   </script>
 </dom-module>
