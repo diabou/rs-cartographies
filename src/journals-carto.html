@@ -11,13 +11,13 @@
     <query-manager
         id="query"
         query=[[authorName]]
-        params='{"fl":"journalTitle_s"}'
+        params='{"fl":"journalTitle_s,halId_s"}'
         on-response=_loadVisu>
     </query-manager>
 
     <div>
       <template is="dom-repeat" items="[[_journals]]">
-        <div>[[item]]</div>
+        <div>[[_stringify(item)]]</div>
       </template>
     </div>
 
@@ -59,12 +59,32 @@
           }
 
           _loadVisu(e) {
-              this.set(
-                  '_journals',
-                  e.detail.body
-                      .map(doc => doc.journalTitle_s)
-                      .filter(title => !!title)
-              );
+              this.set('_journals', JournalsCarto._loadJournals(e.detail.body));
+          }
+
+          static _loadJournals(body) {
+              const rep = [];
+              let doc,
+                  title,
+                  halId,
+                  alreadySavedJournal;
+
+              for (let i = 0; i < body.length; i++) {
+                  doc = body[i];
+                  title = doc.journalTitle_s;
+                  halId = doc.halId_s;
+
+                  if (alreadySavedJournal = rep.find(journal => journal.title === title)) {
+                      alreadySavedJournal.publications.push(halId);
+                  } else {
+                      rep.push({title: title, publications: [halId]});
+                  }
+              }
+              return rep;
+          }
+
+          _stringify(item) {
+              return JSON.stringify(item);
           }
       }
 
