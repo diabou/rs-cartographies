@@ -3,7 +3,6 @@
     <style>
       :host {
         @apply(--layout-flex);
-        border: 1px solid black;
         padding: 2px;
       }
     </style>
@@ -15,11 +14,13 @@
         on-response=_loadVisu>
     </query-manager>
 
-    <div>
-      <template is="dom-repeat" items="[[_journals]]">
-        <div>[[_stringify(item)]]</div>
-      </template>
-    </div>
+    <paper-material elevation="1">
+      <div>
+        <template is="dom-repeat" items="[[_journals]]">
+          <div>[[_stringify(item)]]</div>
+        </template>
+      </div>
+    </paper-material>
 
   </template>
 
@@ -54,8 +55,10 @@
               };
           }
 
-          _fetchJournals() {
-              this.$.query.fetchAsJSON();
+          _fetchJournals(newVal) {
+              if (newVal) {
+                  this.$.query.fetchAsJSON();
+              }
           }
 
           _loadVisu(e) {
@@ -67,19 +70,20 @@
               let doc,
                   title,
                   halId,
-                  alreadySavedJournal;
+                  alreadySaved;
 
               for (let i = 0; i < body.length; i++) {
                   doc = body[i];
                   title = doc.journalTitle_s;
                   halId = doc.halId_s;
 
-                  if (alreadySavedJournal = rep.find(journal => journal.title === title)) {
-                      alreadySavedJournal.publications.push(halId);
+                  if (alreadySaved = rep.find(journal => journal.title === title)) {
+                      alreadySaved.publications.push(halId);
                   } else {
                       rep.push({title: title, publications: [halId]});
                   }
               }
+
               return rep;
           }
 
