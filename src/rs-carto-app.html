@@ -7,6 +7,8 @@
 <link rel="import" href="../bower_components/paper-material/paper-material.html">
 <link rel="import" href="../bower_components/app-route/app-route.html">
 <link rel="import" href="../bower_components/app-route/app-location.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html"/>
 <link rel="import" href="authors-menu.html"/>
 <link rel="import" href="journals-carto.html"/>
 
@@ -17,7 +19,7 @@
         @apply(--layout-flex);
         --app-grid-columns: 2;
         --app-grid-item-height: 300px;
-        --app-grid-gutter: 3px;
+        --app-grid-gutter: 8px;
       }
 
       app-toolbar {
@@ -37,6 +39,10 @@
         line-height: 500px;
       }
 
+      paper-button {
+        text-transform: none;
+      }
+
       .app-grid {
         margin: 2px 2px 2px 2px;
       }
@@ -53,7 +59,8 @@
       <app-header slot="header">
         <paper-material elevation="1">
           <app-toolbar>
-            <div main-title>rs-carto</div>
+            <paper-button on-tap=_backHome>rs-carto</paper-button>
+            <div main-title></div>
             <authors-menu selected={{routeData.author}}></authors-menu>
           </app-toolbar>
         </paper-material>
@@ -65,8 +72,12 @@
         Welcome
       </div>
       <div class="app-grid">
-        <journals-carto author-name=[[routeData.author]]></journals-carto>
-        <div>TOTOTO</div>
+        <paper-material elevation="1">
+          <journals-carto author-name=[[routeData.author]]></journals-carto>
+        </paper-material>
+        <paper-material elevation="1">
+          TOTOTO
+        </paper-material>
       </div>
     </iron-pages>
 
@@ -111,6 +122,11 @@
               if (authorName) {
                   this.$.pages.select(1);
               }
+          }
+
+          _backHome() {
+              this.set('routeData.author', '');
+              this.$.pages.select(0);
           }
       }
 

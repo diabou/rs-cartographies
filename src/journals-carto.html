@@ -14,13 +14,9 @@
         on-response=_loadVisu>
     </query-manager>
 
-    <paper-material elevation="1">
-      <div>
-        <template is="dom-repeat" items="[[_journals]]">
-          <div>[[_stringify(item)]]</div>
-        </template>
-      </div>
-    </paper-material>
+    <template is="dom-repeat" items="[[_journals]]">
+      <div>[[_stringify(item)]]</div>
+    </template>
 
   </template>
 
