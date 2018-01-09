@@ -70,7 +70,8 @@
           _loadVisu(e) {
               this.set('_journals', JournalsCarto._loadJournals(e.detail.body));
 
-              let svg = d3.select(this.$.chart);
+              const svg = d3.select(this.$.chart);
+              svg.html('');
               const height = +svg._groups[0][0].clientHeight;
               const width = +svg._groups[0][0].clientWidth;
 
@@ -84,37 +85,39 @@
 
               const root = d3.hierarchy({children: data})
                   .sum(d => d.value)
-                  .each(d => d.title = d.data.title);
+                  .each(d => d.title = d.data.title || 'No Title Found');
 
-              console.log(root);
-
-              const bubbles = svg.selectAll(".node")
+              const bubbles = svg.selectAll('.node')
                   .data(bubble(root).leaves())
-                  .enter().append("g")
-                  .attr("class", "node")
-                  .attr("transform", 'translate(0, 0)');
+                  .enter().append('g')
+                  .attr('class', 'node')
+                  .attr('transform', d => 'translate(' + d.x + ',' + d.y + ')');
 
               bubbles.append('circle')
                   .attr('r', d => d.r)
-                  .attr('cx', d => d.x)
-                  .attr('cy', d => d.y)
                   .style('fill', d => color(d.title));
 
-              bubbles.append("clipPath")
-                  .attr("id", function(d) { return "clip-" + d.title; })
-                  .append("use")
-                  .attr("xlink:href", function(d) { return "#" + d.title; });
+              bubbles.append('clipPath')
+                  .attr('id', d => 'clip-' + d.title)
+                  .append('use')
+                  .attr('xlink:href', d => '#' + d.title);
 
               bubbles.append('text')
-                  .attr('x', d => d.x)
-                  .attr('y', d => d.y + 5)
+                  .attr('clip-path', d => 'url(#clip-' + d.title + ')')
                   .attr('text-anchor', 'middle')
-                  .text(d => typeof d.title === 'undefined' ? 'no\ntitle\nfound' : d.title)
-                  .style({
-                      'fill':'white',
-                      'font-family':'Helvetica Neue, Helvetica, Arial, san-serif',
-                      'font-size': '10px'
-                  });
+                  .selectAll('tspan')
+                  .data(d => JournalsCarto._shortenTitle(d.title))
+                  .enter().append('tspan')
+                  .attr('x', 0)
+                  .attr('y', (d, i, nodes) => 13 + (i - nodes.length / 2 - 0.5) * 10)
+                  .text(d => d);
+
+              bubbles.append('title')
+                  .text(d =>
+                      d.title + ':\n  -' + d.data.publications
+                          .map(pub => '<a href="google.fr">' + pub + '</a>')
+                          .join('\n  -')
+                  );
           }
 
           static _loadJournals(body) {
@@ -137,6 +140,15 @@
               }
 
               return rep;
+          }
+
+          static _shortenTitle(title) {
+              let split = title.split(' ');
+              if (split.length > 3) {
+                  split = split.slice(0, 3);
+                  split[2] += '...'
+              }
+              return split;
           }
       }
 
