@@ -2,8 +2,19 @@
   <template>
     <style>
       :host {
-        @apply(--layout-flex);
+        @apply(--layout-horizontal);
         padding: 2px;
+      }
+
+      #query {
+        @apply(--layout-flex-none);
+      }
+
+      #chart {
+        @apply(--layout-flex-2);
+        font-family: "sans-serif";
+        font-size: 10px;
+        text-anchor: "middle";
       }
     </style>
 
@@ -14,12 +25,11 @@
         on-response=_loadVisu>
     </query-manager>
 
-    <template is="dom-repeat" items="[[_journals]]">
-      <div>[[_stringify(item)]]</div>
-    </template>
+    <svg id="chart"></svg>
 
   </template>
 
+  <script src="https://d3js.org/d3.v4.min.js"></script>
   <script>
       /**
        * @customElement
@@ -59,6 +69,52 @@
 
           _loadVisu(e) {
               this.set('_journals', JournalsCarto._loadJournals(e.detail.body));
+
+              let svg = d3.select(this.$.chart);
+              const height = +svg._groups[0][0].clientHeight;
+              const width = +svg._groups[0][0].clientWidth;
+
+              const color = d3.scaleOrdinal(d3.schemeCategory20c);
+
+              const bubble = d3.pack()
+                  .size([width, height])
+                  .padding(1.5);
+
+              const data = this._journals.map(d => { d.value = +d.publications.length; return d; });
+
+              const root = d3.hierarchy({children: data})
+                  .sum(d => d.value)
+                  .each(d => d.title = d.data.title);
+
+              console.log(root);
+
+              const bubbles = svg.selectAll(".node")
+                  .data(bubble(root).leaves())
+                  .enter().append("g")
+                  .attr("class", "node")
+                  .attr("transform", 'translate(0, 0)');
+
+              bubbles.append('circle')
+                  .attr('r', d => d.r)
+                  .attr('cx', d => d.x)
+                  .attr('cy', d => d.y)
+                  .style('fill', d => color(d.title));
+
+              bubbles.append("clipPath")
+                  .attr("id", function(d) { return "clip-" + d.title; })
+                  .append("use")
+                  .attr("xlink:href", function(d) { return "#" + d.title; });
+
+              bubbles.append('text')
+                  .attr('x', d => d.x)
+                  .attr('y', d => d.y + 5)
+                  .attr('text-anchor', 'middle')
+                  .text(d => typeof d.title === 'undefined' ? 'no\ntitle\nfound' : d.title)
+                  .style({
+                      'fill':'white',
+                      'font-family':'Helvetica Neue, Helvetica, Arial, san-serif',
+                      'font-size': '10px'
+                  });
           }
 
           static _loadJournals(body) {
@@ -81,10 +137,6 @@
               }
 
               return rep;
-          }
-
-          _stringify(item) {
-              return JSON.stringify(item);
           }
       }
 
