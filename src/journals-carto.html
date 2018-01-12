@@ -2,7 +2,7 @@
   <template>
     <style>
       :host {
-        @apply(--layout-horizontal);
+        @apply(--layout-vertical);
         padding: 2px;
       }
 
@@ -11,25 +11,33 @@
       }
 
       #chart {
-        @apply(--layout-flex-2);
+        @apply(--layout-flex);
         font-family: "sans-serif";
         font-size: 10px;
         text-anchor: "middle";
+      }
+
+      #title {
+        @apply(--layout-flex);
+        max-height: 20px;
+        font-family: 'Roboto', sans-serif;
+        color: #9e9e9e;
+        font-size: 15px;
       }
     </style>
 
     <query-manager
         id="query"
         query=[[authorName]]
-        params='{"fl":"journalTitle_s,halId_s"}'
+        params='{"fl":"journalTitle_s,halId_s,title_s"}'
         on-response=_loadVisu>
     </query-manager>
 
     <svg id="chart"></svg>
+    <app-toolbar id="title"><div main-title>Where he published</div></app-toolbar>
 
   </template>
 
-  <script src="https://d3js.org/d3.v4.min.js"></script>
   <script>
       /**
        * @customElement
@@ -85,7 +93,7 @@
 
               const root = d3.hierarchy({children: data})
                   .sum(d => d.value)
-                  .each(d => d.title = d.data.title || 'No Title Found');
+                  .each(d => d.title = d.data.title || 'No Journal Title Found');
 
               const bubbles = svg.selectAll('.node')
                   .data(bubble(root).leaves())
@@ -113,40 +121,34 @@
                   .text(d => d);
 
               bubbles.append('title')
-                  .text(d =>
-                      d.title + ':\n  -' + d.data.publications
-                          .map(pub => '<a href="google.fr">' + pub + '</a>')
-                          .join('\n  -')
-                  );
+                  .text(d => d.title + ':\n\n- ' + d.data.publications.map(pub => pub.title).join('\n- '));
           }
 
           static _loadJournals(body) {
               const rep = [];
-              let doc,
-                  title,
-                  halId,
+              let journalTitle,
+                  publication,
                   alreadySaved;
 
-              for (let i = 0; i < body.length; i++) {
-                  doc = body[i];
-                  title = doc.journalTitle_s;
-                  halId = doc.halId_s;
+              body.forEach(doc => {
+                  journalTitle = doc.journalTitle_s;
+                  publication = {halId: doc.halId_s, title: doc.title_s[0]};
 
-                  if (alreadySaved = rep.find(journal => journal.title === title)) {
-                      alreadySaved.publications.push(halId);
+                  if (alreadySaved = rep.find(journal => journal.title === journalTitle)) {
+                      alreadySaved.publications.push(publication);
                   } else {
-                      rep.push({title: title, publications: [halId]});
+                      rep.push({title: journalTitle, publications: [publication]});
                   }
-              }
+              });
 
               return rep;
           }
 
           static _shortenTitle(title) {
               let split = title.split(' ');
-              if (split.length > 3) {
-                  split = split.slice(0, 3);
-                  split[2] += '...'
+              if (split.length > 4) {
+                  split = split.slice(0, 4);
+                  split[3] += '...'
               }
               return split;
           }

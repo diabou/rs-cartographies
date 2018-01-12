@@ -1,0 +1,118 @@
+<dom-module id="publications-histo">
+  <template>
+    <style>
+      :host {
+        @apply(--layout-vertical);
+        @apply(--layout-flex);
+        padding: 2px;
+      }
+
+      #query {
+        @apply(--layout-flex-none);
+      }
+
+      #chart {
+        @apply(--layout-flex);
+      }
+
+      #title {
+        @apply(--layout-flex);
+        max-height: 20px;
+        font-family: 'Roboto', sans-serif;
+        color: #9e9e9e;
+        font-size: 15px;
+      }
+    </style>
+
+    <query-manager
+        id="query"
+        query=[[authorName]]
+        params='{"fl":"releasedDateY_i, title_s"}'
+        on-response=_loadVisu>
+    </query-manager>
+
+    <svg id="chart"></svg>
+    <app-toolbar id="title"><div main-title>Chronological distribution</div></app-toolbar>
+
+  </template>
+
+  <script>
+    /**
+     * @customElement
+     * @polymer
+     */
+    class PublicationsHisto extends Polymer.Element {
+        static get is() {
+            return 'publications-histo';
+        }
+
+        static get properties() {
+            return {
+                authorName: {
+                    type: String,
+                    observer: '_fetchHisto'
+                }
+            };
+        }
+
+        _fetchHisto(newVal) {
+            if (newVal) {
+                this.$.query.fetchAsJSON();
+            }
+        }
+
+        _loadVisu(e) {
+            const data = e.detail.body.map(doc => doc.releasedDateY_i).sort((a, b) => a - b);
+            const formatCount = d3.format(',.0f');
+            const svg = d3.select(this.$.chart);
+
+
+            const
+                height =  +svg._groups[0][0].clientHeight,
+                width = +svg._groups[0][0].clientWidth,
+                g = svg.append('g').attr('transform', 'translate(0, 0)');
+
+            const first = data[0];
+            const latest = data[data.length - 1];
+
+            const x = d3.scaleLinear()
+                    .rangeRound([0, width])
+                    .domain([first - 1, latest + 2]);
+
+            const bins = d3.histogram()
+                .domain(x.domain())
+                .thresholds(x.ticks(latest - first + 2))
+                (data);
+
+            const y = d3.scaleLinear()
+                .domain([0, d3.max(bins, d => d.length)])
+                .range([height, 0]);
+
+            const bar = g.selectAll('.bar')
+                .data(bins)
+                .enter().append('g')
+                .attr('class', 'bar')
+                .attr('transform', d => 'translate(' + x(d.x0) + ',' + (y(d.length) - 20) + ')');
+
+            bar.append('rect')
+                .attr('x', 1)
+                .attr('width', x(bins[0].x1) - x(bins[0].x0) - 1)
+                .attr('height', d => height - y(d.length));
+
+            bar.append('text')
+                .attr('dy', '.75em')
+                .attr('y', 6)
+                .attr('x', (x(bins[0].x1) - x(bins[0].x0)) / 2)
+                .attr('text-anchor', 'middle')
+                .text(d => formatCount(d.length));
+
+            g.append('g')
+                .attr('class', 'axis axis--x')
+                .attr('transform', 'translate(0, 160)')
+                .call(d3.axisBottom(x));
+        }
+    }
+
+    window.customElements.define(PublicationsHisto.is, PublicationsHisto);
+  </script>
+</dom-module>

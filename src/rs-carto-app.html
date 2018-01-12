@@ -10,6 +10,7 @@
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html"/>
 <link rel="import" href="authors-menu.html"/>
+<link rel="import" href="publication-histo.html"/>
 <link rel="import" href="journals-carto.html"/>
 
 <dom-module id="rs-carto-app">
@@ -33,7 +34,7 @@
         @apply(--layout-end-aligned);
       }
 
-      .home {
+      #home {
         @apply(--layout-flex);
         font-size: 25px;
         text-align: center;
@@ -47,12 +48,25 @@
       #pages {
         @apply(--layout-horizontal);
         @apply(--layout-flex);
+        width: 99%;
+        margin: 8px auto auto;
+      }
+
+      #visu {
+        @apply(--layout-vertical);
+        @apply(--layout-flex);
+      }
+
+      #histo {
+        @apply(--layout-flex);
+        @apply(--layout-horizontal);
+        min-height: 200px;
+        margin: 0 8px 0 8px;
       }
 
       .app-grid {
         @apply(--layout-horizontal);
         @apply(--layout-flex);
-        margin: 2px 2px 2px 2px;
       }
 
       .chartFrame {
@@ -62,6 +76,10 @@
 
       .chart {
         @apply(--layout-flex);
+      }
+
+      publications-histo {
+        max-height: 300px;
       }
     </style>
 
@@ -85,21 +103,32 @@
     </app-header-layout>
 
     <iron-pages id="pages" selected=0>
-      <div class="home">
+      <div id="home">
         Welcome
       </div>
-      <div class="app-grid">
-        <paper-material class="chartFrame" elevation="1">
-          <journals-carto id="journals" class="chart" author-name=[[routeData.author]]></journals-carto>
-        </paper-material>
-        <paper-material class="chartFrame" elevation="1">
-          TOTOTO
-        </paper-material>
+      <div id="visu">
+
+        <div id="histo">
+          <paper-material class="chartFrame" elevation="1">
+            <publications-histo class="chart" author-name="[[routeData.author]]"></publications-histo>
+          </paper-material>
+        </div>
+
+        <div class="app-grid">
+          <paper-material class="chartFrame" elevation="1">
+            <journals-carto class="chart" author-name=[[routeData.author]]></journals-carto>
+          </paper-material>
+          <paper-material class="chartFrame" elevation="1">
+            TOTOTO
+          </paper-material>
+        </div>
+
       </div>
     </iron-pages>
 
   </template>
 
+  <script src="https://d3js.org/d3.v4.min.js"></script>
   <script>
       /**
        * @customElement
