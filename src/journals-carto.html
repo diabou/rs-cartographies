@@ -93,7 +93,7 @@
 
               const root = d3.hierarchy({children: data})
                   .sum(d => d.value)
-                  .each(d => d.title = d.data.title || 'No Journal Title Found');
+                  .each(d => d.title = d.data.title || 'Other ');
 
               const bubbles = svg.selectAll('.node')
                   .data(bubble(root).leaves())

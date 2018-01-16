@@ -22,6 +22,10 @@
         color: #9e9e9e;
         font-size: 15px;
       }
+
+      .bar{
+        color: blue;
+      }
     </style>
 
     <query-manager
@@ -62,31 +66,31 @@
         }
 
         _loadVisu(e) {
-            const data = e.detail.body.map(doc => doc.releasedDateY_i).sort((a, b) => a - b);
-            const formatCount = d3.format(',.0f');
+            const formatCount = d3.format('.0f');
             const svg = d3.select(this.$.chart);
+            const data = e.detail.body.map(doc => doc.releasedDateY_i).sort((a, b) => a - b);
+            const first = data[0];
+            const latest = data[data.length - 1];
 
             svg.html('');
 
             const
-                height =  +svg._groups[0][0].clientHeight,
+                height = +svg._groups[0][0].clientHeight,
                 width = +svg._groups[0][0].clientWidth,
                 g = svg.append('g').attr('transform', 'translate(0, 0)');
 
-            const first = data[0];
-            const latest = data[data.length - 1];
-
             const x = d3.scaleLinear()
-                    .rangeRound([0, width])
-                    .domain([first - 1, latest + 2]);
+                .domain([first - 1, latest + 2])
+                .range([0, width]);
 
             const bins = d3.histogram()
                 .domain(x.domain())
-                .thresholds(x.ticks(latest - first + 2))
-                (data);
+                .thresholds(x.ticks(latest - first + 1))
+                (data)
+                .filter(bin => bin.length !== 0);
 
             const y = d3.scaleLinear()
-                .domain([0, d3.max(bins, d => d.length)])
+                .domain([0, d3.max(bins, d => d.length) + 2])
                 .range([height, 0]);
 
             const bar = g.selectAll('.bar')
@@ -97,20 +101,27 @@
 
             bar.append('rect')
                 .attr('x', 1)
+                .attr('fill', 'blue')
                 .attr('width', x(bins[0].x1) - x(bins[0].x0) - 1)
                 .attr('height', d => height - y(d.length));
 
             bar.append('text')
                 .attr('dy', '.75em')
-                .attr('y', 6)
+                .attr('y', 5)
                 .attr('x', (x(bins[0].x1) - x(bins[0].x0)) / 2)
+                .attr('font-size', '.75em')
+                .attr('font-family', 'Roboto')
                 .attr('text-anchor', 'middle')
                 .text(d => formatCount(d.length));
+
+            const axis = d3.axisBottom()
+                .tickFormat(d3.format('.0f'))
+                .scale(x);
 
             g.append('g')
                 .attr('class', 'axis axis--x')
                 .attr('transform', 'translate(0, 160)')
-                .call(d3.axisBottom(x));
+                .call(axis);
         }
     }
 
