@@ -10,6 +10,16 @@
         @apply(--layout-flex-none);
       }
 
+      #pages {
+        @apply(--layout-horizontal);
+        @apply(--layout-flex);
+      }
+
+      paper-spinner {
+        top: 50%;
+        left: 50%;
+      }
+
       #chart {
         @apply(--layout-flex);
         font-family: "sans-serif";
@@ -33,7 +43,10 @@
         on-response=_loadVisu>
     </query-manager>
 
-    <svg id="chart"></svg>
+    <iron-pages id="pages">
+      <paper-spinner active></paper-spinner>
+      <svg id="chart"></svg>
+    </iron-pages>
     <app-toolbar id="title"><div main-title>Where he published</div></app-toolbar>
 
   </template>
@@ -71,13 +84,38 @@
 
           _fetchJournals(newVal) {
               if (newVal) {
+                  this.$.pages.select(0);
                   this.$.query.fetchAsJSON();
               }
           }
 
           _loadVisu(e) {
               this.set('_journals', JournalsCarto._loadJournals(e.detail.body));
+              this.generateD3Chart();
+              this.$.pages.select(1);
+          }
 
+          static _loadJournals(body) {
+              const rep = [];
+              let journalTitle,
+                  publication,
+                  alreadySaved;
+
+              body.forEach(doc => {
+                  journalTitle = doc.journalTitle_s;
+                  publication = {halId: doc.halId_s, title: doc.title_s[0]};
+
+                  if (alreadySaved = rep.find(journal => journal.title === journalTitle)) {
+                      alreadySaved.publications.push(publication);
+                  } else {
+                      rep.push({title: journalTitle, publications: [publication]});
+                  }
+              });
+
+              return rep;
+          }
+
+          generateD3Chart() {
               const svg = d3.select(this.$.chart);
               svg.html('');
               const height = +svg._groups[0][0].clientHeight;
@@ -89,7 +127,10 @@
                   .size([width, height])
                   .padding(1.5);
 
-              const data = this._journals.map(d => { d.value = +d.publications.length; return d; });
+              const data = this._journals.map(d => {
+                  d.value = +d.publications.length;
+                  return d;
+              });
 
               const root = d3.hierarchy({children: data})
                   .sum(d => d.value)
@@ -122,26 +163,6 @@
 
               bubbles.append('title')
                   .text(d => d.title + ':\n\n- ' + d.data.publications.map(pub => pub.title).join('\n- '));
-          }
-
-          static _loadJournals(body) {
-              const rep = [];
-              let journalTitle,
-                  publication,
-                  alreadySaved;
-
-              body.forEach(doc => {
-                  journalTitle = doc.journalTitle_s;
-                  publication = {halId: doc.halId_s, title: doc.title_s[0]};
-
-                  if (alreadySaved = rep.find(journal => journal.title === journalTitle)) {
-                      alreadySaved.publications.push(publication);
-                  } else {
-                      rep.push({title: journalTitle, publications: [publication]});
-                  }
-              });
-
-              return rep;
           }
 
           static _shortenTitle(title) {
