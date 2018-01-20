@@ -39,19 +39,23 @@
         color: #9e9e9e;
         font-size: 15px;
       }
+
+      .error {
+        @apply(--layout-flex);
+        @apply(--layout-vertical);
+        @apply(--layout-around-justified);
+        text-align: center;
+        font-family: 'Roboto', sans-serif;
+      }
     </style>
 
-    <query-manager
-        id="query"
-        query=[[authorName]]
-        on-response=_loadVisu>
-    </query-manager>
+    <query-manager id="query" query=[[authorName]] on-response=_loadVisu></query-manager>
 
     <div id="chartContainer">
       <iron-pages id="pages">
         <paper-spinner active></paper-spinner>
         <svg id="chart"></svg>
-        <div>ERROR</div>
+        <div class="error"><div>[[_errorMessage]]</div></div>
       </iron-pages>
     </div>
     <app-toolbar id="titleBar"><div id="title" main-title></div></app-toolbar>
@@ -85,6 +89,11 @@
                 _data: {
                     type: Array,
                     value: () => []
+                },
+
+                _errorMessage: {
+                    type: String,
+                    value: ''
                 }
             };
         }
@@ -107,12 +116,12 @@
                 this._generateChart();
                 this.$.pages.select(1);
             } catch (e) {
-                console.error(e);
+                this.set('_errorMessage', 'ERROR : '.concat(e.message));
                 this.$.pages.select(2);
             }
         }
 
-        get dimensions() {
+        get _dimensions() {
             const pages = d3.select(this.$.pages)._groups[0][0];
             return [pages.clientHeight, pages.clientWidth];
         }

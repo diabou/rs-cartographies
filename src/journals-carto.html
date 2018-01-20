@@ -46,7 +46,7 @@
                   const svg = d3.select(this.$.chart);
                   svg.html('');
 
-                  const [height, width] = this.dimensions;
+                  const [height, width] = this._dimensions;
 
                   const color = d3.scaleOrdinal(d3.schemeCategory20c);
 
