@@ -91,6 +91,9 @@
                     value: () => []
                 },
 
+                /**
+                 * Message to be displayed instead of the chart in case of an error.
+                 */
                 _errorMessage: {
                     type: String,
                     value: ''
@@ -127,11 +130,11 @@
         }
 
         _generateChart() {
-            throw new Error(this.is.concat('._generateChart is an abstract method and should be overwritten'));
+            throw new Error('RsCartoVisu._generateChart is an abstract method and should be overwritten');
         }
 
         _formatData() {
-            throw new Error(this.is.concat('_formatData is an abstract method and should be overwritten'));
+            throw new Error('RsCartoVisu._formatData is an abstract method and should be overwritten');
         }
     }
 
