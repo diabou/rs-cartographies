@@ -14,6 +14,7 @@
 <link rel="import" href="authors-menu.html"/>
 <link rel="import" href="publication-histo.html"/>
 <link rel="import" href="journals-carto.html"/>
+<link rel="import" href="collaborators-network.html"/>
 
 <dom-module id="rs-carto-app">
   <template>
@@ -119,7 +120,7 @@
             <journals-carto class="chart" author-name=[[routeData.author]]></journals-carto>
           </paper-material>
           <paper-material class="chartFrame" elevation="1">
-            TOTOTO
+            <collaborators-network class="chart" author-name="[[routeData.author]]"></collaborators-network>
           </paper-material>
         </div>
 
