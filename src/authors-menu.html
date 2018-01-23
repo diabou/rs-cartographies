@@ -95,7 +95,7 @@
           _makeAuthorsList(e) {
               this.set(
                   '_sortedNames',
-                  Array.prototype.concat.apply([], e.detail.body.map(doc => doc.authFullName_s))
+                  Array.from(new Set(Array.prototype.concat.apply([], e.detail.body.map(doc => doc.authFullName_s))))
               );
           }
 
