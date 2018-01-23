@@ -8,14 +8,14 @@
            * @customElement
            * @polymer
            */
-          class PublicationsHisto extends RsCartoVisu {
+          class PublicationsHisto extends RsCartoChart {
               static get is() {
                   return 'publications-histo';
               }
 
               static get template() {
                   if (!memorizedTemplate) {
-                      memorizedTemplate = RsCartoVisu.template.cloneNode(true);
+                      memorizedTemplate = RsCartoChart.template.cloneNode(true);
                       this.fillInTemplate(memorizedTemplate, '{"fl":"releasedDateY_i,title_s"}', 'Publications per year');
                   }
                   return memorizedTemplate;
