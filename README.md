@@ -1,10 +1,12 @@
 # rs-cartographies
 Dashboards on research scientists publications from HAL data
 
-run :
+Build docker images :
 
-   ```sudo docker build -t rs-carto .```
+   ```docker build -t rs-carto .```
 
-then : 
+then run it: 
 
-   ```sudo docker run -p 8081:8081 -ti rs-carto polymer serve -H 0.0.0.0 -p 8081```
+   ```docker run -p 8081:8081 -ti rs-carto polymer serve -H 0.0.0.0 -p 8081```
+
+You might have to use ```sudo```
