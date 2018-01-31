@@ -7,6 +7,6 @@ Build docker image :
 
 then run it: 
 
-   ```docker run -p 8081:8081 -ti rs-carto polymer serve -H 0.0.0.0 -p 8081```
+   ```docker run -p 8081:8081 -ti rs-carto```
 
 You might have to run them as ```sudo```

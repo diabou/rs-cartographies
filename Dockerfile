@@ -15,4 +15,4 @@ RUN bower --allow-root install &&\
 
 COPY src src
 
-CMD bash
+CMD ["bash", "-c", "polymer serve -H 0.0.0.0 -p 8081"]
