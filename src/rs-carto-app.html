@@ -20,25 +20,35 @@
   <template>
     <style include="app-grid-style">
       :host {
-        @apply(--layout-flex);
         --app-grid-columns: 2;
         --app-grid-item-height: 300px;
         --app-grid-gutter: 8px;
+      }
+
+      .flex {
+        @apply --layout-flex;
+      }
+
+      .vertical {
+        @apply --layout-vertical;
+      }
+
+      .horizontal {
+        @apply --layout-horizontal;
       }
 
       app-toolbar {
         background-color: #20c9df;
         color: white;
         font-family: 'Roboto', sans-serif;
-        @apply(--layout-between-aligned);
+        @apply --layout-between-aligned;
       }
 
       authors-menu {
-        @apply(--layout-end-aligned);
+        @apply --layout-end-aligned;
       }
 
-      #home {
-        @apply(--layout-flex);
+      .home {
         font-size: 25px;
         text-align: center;
         line-height: 500px;
@@ -49,40 +59,14 @@
       }
 
       #pages {
-        @apply(--layout-horizontal);
-        @apply(--layout-flex);
         width: 99%;
         margin: 8px auto auto;
       }
 
-      #visu {
-        @apply(--layout-vertical);
-        @apply(--layout-flex);
-      }
-
-      #histo {
-        @apply(--layout-flex);
-        @apply(--layout-horizontal);
+      .histo {
+        max-height: 300px;
         min-height: 200px;
         margin: 0 8px 0 8px;
-      }
-
-      .app-grid {
-        @apply(--layout-horizontal);
-        @apply(--layout-flex);
-      }
-
-      .chartFrame {
-        @apply(--layout-horizontal);
-        @apply(--layout-flex);
-      }
-
-      .chart {
-        @apply(--layout-flex);
-      }
-
-      publications-histo {
-        max-height: 300px;
       }
     </style>
 
@@ -93,7 +77,8 @@
         data="{{routeData}}">
     </app-route>
 
-    <app-header-layout class="flex">
+    <app-header-layout>
+
       <app-header slot="header">
         <paper-material elevation="1">
           <app-toolbar>
@@ -103,33 +88,33 @@
           </app-toolbar>
         </paper-material>
       </app-header>
+
+      <iron-pages id="pages" class="horizontal flex" selected=0>
+        <div class="home flex">Welcome</div>
+        <div class="vertical flex">
+
+          <div class="histo horizontal flex">
+            <paper-material class="horizontal flex" elevation="1">
+              <publications-histo class="flex" author-name="[[routeData.author]]"></publications-histo>
+            </paper-material>
+          </div>
+
+          <div class="app-grid horizontal flex">
+            <paper-material class="horizontal flex" elevation="1">
+              <journals-carto class="flex" author-name=[[routeData.author]]></journals-carto>
+            </paper-material>
+            <paper-material class="horizontal flex" elevation="1">
+              <collaborators-network class="flex" author-name="[[routeData.author]]"></collaborators-network>
+            </paper-material>
+          </div>
+
+        </div>
+      </iron-pages>
+
     </app-header-layout>
-
-    <iron-pages id="pages" selected=0>
-      <div id="home">Welcome</div>
-      <div id="visu">
-
-        <div id="histo">
-          <paper-material class="chartFrame" elevation="1">
-            <publications-histo class="chart" author-name="[[routeData.author]]"></publications-histo>
-          </paper-material>
-        </div>
-
-        <div class="app-grid">
-          <paper-material class="chartFrame" elevation="1">
-            <journals-carto class="chart" author-name=[[routeData.author]]></journals-carto>
-          </paper-material>
-          <paper-material class="chartFrame" elevation="1">
-            <collaborators-network class="chart" author-name="[[routeData.author]]"></collaborators-network>
-          </paper-material>
-        </div>
-
-      </div>
-    </iron-pages>
 
   </template>
 
-  <script src="https://d3js.org/d3.v4.min.js"></script>
   <script>
       /**
        * @customElement

@@ -2,22 +2,26 @@
   <template>
     <style>
       :host {
-        @apply(--layout-vertical);
+        @apply --layout-vertical;
+        font-family: 'Roboto', sans-serif;
+        font-size: 10px;
         padding: 2px;
       }
 
+      .flex {
+        @apply --layout-flex;
+      }
+
+      .vertical {
+        @apply --layout-vertical;
+      }
+
       #query {
-        @apply(--layout-flex-none);
+        @apply --layout-flex-none;
       }
 
-      #chartContainer {
-        @apply(--layout-flex);
-        @apply(--layout-vertical);
-      }
-
-      #pages {
-        @apply(--layout-flex);
-        @apply(--layout-vertical);
+      #chart {
+        height: 100%;
       }
 
       paper-spinner {
@@ -25,25 +29,14 @@
         left: 50%;
       }
 
-      #chart {
-        @apply(--layout-flex);
-        font-family: "sans-serif";
-        font-size: 10px;
-        text-anchor: "middle";
-      }
-
-      #titleBar {
-        @apply(--layout-flex);
+      .bar {
         max-height: 20px;
-        font-family: 'Roboto', sans-serif;
         color: #9e9e9e;
         font-size: 15px;
       }
 
       .error {
-        @apply(--layout-flex);
-        @apply(--layout-vertical);
-        @apply(--layout-around-justified);
+        @apply --layout-around-justified;
         text-align: center;
         font-family: 'Roboto', sans-serif;
       }
@@ -51,17 +44,18 @@
 
     <query-manager id="query" query=[[authorName]] on-response=_loadVisu></query-manager>
 
-    <div id="chartContainer">
-      <iron-pages id="pages">
+    <div class="vertical flex">
+      <iron-pages id="pages" class="vertical flex">
         <paper-spinner active></paper-spinner>
         <svg id="chart"></svg>
-        <div class="error"><div>[[_errorMessage]]</div></div>
+        <div class="error vertical flex"><div>[[_errorMessage]]</div></div>
       </iron-pages>
     </div>
-    <app-toolbar id="titleBar"><div id="title" main-title></div></app-toolbar>
+    <app-toolbar class="flex bar"><div id="title" main-title></div></app-toolbar>
 
   </template>
 
+  <script src="https://d3js.org/d3.v4.min.js"></script>
   <script>
     /**
      * @customElement

@@ -1,5 +1,6 @@
 <dom-module id="collaborators-network">
 
+  <script src="../bower_components/sigma.js/build/sigma.min.js"></script>
   <script>
       (function() {
 
@@ -14,14 +15,22 @@
                   return 'collaborators-network';
               }
 
+              static get properties() {
+                  return {
+                      _sigma: {
+                          type: Object
+                      }
+                  }
+              }
+
               static get template() {
                   if (!memorizedTemplate) {
                       memorizedTemplate = RsCartoChart.template.cloneNode(true);
 
                       const svg = memorizedTemplate.content.getElementById('chart');
-                      const canvas = document.createElement('canvas');
-                      canvas.id = 'chart';
-                      svg.parentNode.replaceChild(canvas, svg);
+                      const div = document.createElement('div');
+                      div.id = 'chart';
+                      svg.parentNode.replaceChild(div, svg);
 
                       this.fillInTemplate(memorizedTemplate, '{"fl":"authFullName_s,halId_s,title_s"}', 'Collaborators');
                   }
@@ -46,12 +55,50 @@
                               }
                           });
                   });
-
-                  this.set('_data', collaborators);
+                  return collaborators;
               }
 
               _generateChart() {
+                  console.log(this._data);
 
+                  setTimeout(() => {
+                      if (this._sigma) {
+                          this._sigma.graph.clear();
+                          this._sigma.refresh();
+                      }
+
+                      this.set('_sigma', new sigma(this.$.chart));
+                      this._sigma.graph.addNode({
+                          id: 'n0',
+                          label: this.authorName,
+                          x: 0,
+                          y: 0,
+                          size: 3,
+                          color: '#0f16ff'
+                      });
+
+                      const nbCol = this._data.length;
+                      let id;
+
+                      this._data.forEach((collaborator, i) => {
+                          id = 'n' + i + 1;
+
+                          this._sigma.graph.addNode({
+                              id: id,
+                              label: collaborator.name,
+                              x: Math.cos(i * 2.0 * Math.PI / nbCol),
+                              y: Math.sin(i * 2.0 * Math.PI / nbCol),
+                              size: 2,
+                              color: '#a01fff'
+                          }).addEdge({
+                              id: 'e' + i + 1,
+                              source: 'n0',
+                              target: id
+                          });
+                      });
+
+                      this._sigma.refresh();
+                  });
               }
           }
 

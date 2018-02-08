@@ -17,26 +17,44 @@
               static get template() {
                   if (!memorizedTemplate) {
                       memorizedTemplate = RsCartoChart.template.cloneNode(true);
-                      this.fillInTemplate(memorizedTemplate, '{"fl":"journalTitle_s,title_s,haliId_s"}', 'Where he published');
+                      this.fillInTemplate(memorizedTemplate, '{"fl":"journalTitle_s,title_s,conferenceTitle_s,haliId_s"}', 'Where he published');
                   }
                   return memorizedTemplate;
               }
 
               _formatData(body) {
                   const rep = [];
-                  let journalTitle,
+
+                  let conferenceTitle,
+                      journalTitle,
                       publication,
+                      title,
                       alreadySaved;
 
                   body.forEach(doc => {
+                      conferenceTitle = doc.conferenceTitle_s;
                       journalTitle = doc.journalTitle_s;
+
+                      if (conferenceTitle) {
+                          alreadySaved = rep.find(obj => obj.type === 'Conferences');
+                          title = 'Conferences';
+                      } else if (journalTitle) {
+                          alreadySaved = rep.find(journal => journal.title === journalTitle);
+                          title = journalTitle;
+                      }
+
                       publication = {halId: doc.halId_s, title: doc.title_s[0]};
 
-                      if (alreadySaved = rep.find(journal => journal.title === journalTitle)) {
+                      if (alreadySaved) {
                           alreadySaved.publications.push(publication);
                       } else {
-                          rep.push({title: journalTitle, publications: [publication]});
+                          rep.push({
+                              title: title,
+                              type: conferenceTitle ? 'Conferences' : 'journal',
+                              publications: [publication]
+                          });
                       }
+
                   });
 
                   return rep;
@@ -82,17 +100,26 @@
                       .attr('clip-path', d => 'url(#clip-' + d.title + ')')
                       .attr('text-anchor', 'middle')
                       .selectAll('tspan')
-                      .data(d => JournalsCarto._shortenTitle(d.title))
+                      .data(d => {
+                          const res = JournalsCarto._shortenTitle(d.title);
+                          return res;
+                      })
                       .enter().append('tspan')
                       .attr('x', 0)
                       .attr('y', (d, i, nodes) => 13 + (i - nodes.length / 2 - 0.5) * 10)
-                      .text(d => d);
+                      .text(d => {
+                          return d
+                      });
 
                   bubbles.append('title')
                       .text(d => d.title + ':\n\n- ' + d.data.publications.map(pub => pub.title).join('\n- '));
               }
 
               static _shortenTitle(title) {
+                  if (title === 'Conferences' || title === 'Other') {
+                      return [title];
+                  }
+
                   let res = title.split(' ');
                   if (res.length > 4) {
                       res = res.slice(0, 4);
