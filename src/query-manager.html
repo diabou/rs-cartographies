@@ -47,14 +47,6 @@
                   params: {
                       type: String,
                       value: null
-                  },
-
-                  /**
-                   * the most recent response that came to this element
-                   */
-                  lastResponse: {
-                      type: Object,
-                      value: null
                   }
               };
           }
@@ -72,13 +64,17 @@
           }
 
           fetchAsJSON() {
+              const handleError = res => {
+                  if (!res.ok) {
+                      throw Error(res.statusText);
+                  }
+                  return res.json();
+              };
+
               fetch(this._requestURL)
-                  .then(res => res.json())
-                  .then(json => {
-                      const docs = json.response.docs;
-                      this.set('lastResponse', docs);
-                      this.dispatchEvent(new CustomEvent('response', {detail: {kicked: true, body: docs}}));
-                  });
+                  .then(handleError)
+                  .then(json => this.dispatchEvent(new CustomEvent('response', {detail: {body: json.response.docs}})))
+                  .catch(e => this.dispatchEvent(new CustomEvent('error', {detail: {message: e.message}})));
           }
       }
 

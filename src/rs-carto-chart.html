@@ -119,7 +119,7 @@
                 this._generateChart();
                 this.$.pages.select(1);
             } catch (e) {
-                this.set('_errorMessage', 'ERROR : '.concat(e.message));
+                this.set('_errorMessage', 'ERROR : '.concat(e.message || e));
                 this.$.pages.select(2);
             }
         }

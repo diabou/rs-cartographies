@@ -11,13 +11,23 @@
         cursor: pointer;
       }
 
-      paper-dropdown-menu {
-        --paper-dropdown-menu-label: {
-          color: white;
+      paper-dropdown-menu.ok {
+        --paper-input-container-label: {
+          color: #6a6a6a;
         };
 
-        --paper-dropdown-menu-input: {
-          color: white;
+        --paper-dropdown-menu-icon: {
+          color: #6a6a6a;
+        }
+      }
+
+      paper-dropdown-menu.error {
+        --paper-input-container-label: {
+          color: #e83b3b;
+        };
+
+        --paper-dropdown-menu-icon: {
+          color: #e83b3b;
         };
       }
     </style>
@@ -25,10 +35,11 @@
     <query-manager
         id="query"
         params='{"fl":"authFullName_s"}'
-        on-response=_makeAuthorsList>
+        on-response=_makeAuthorsList
+        on-error=_handleError>
     </query-manager>
 
-    <paper-dropdown-menu label="Chose Author">
+    <paper-dropdown-menu label=[[_inputLabel]] class$=[[_class]]>
       <paper-listbox id="listBox" slot="dropdown-content" selected-item={{_selectedItem}}>
         <template is="dom-repeat" items=[[_sortedNames]]>
           <paper-item class="author">[[item]]</paper-item>
@@ -77,6 +88,22 @@
                       reflectOnAttribute: true,
                       observer: '_backToNone',
                       value: null
+                  },
+
+                  /**
+                   * The label displayed in the dropdown menu input.
+                   */
+                  _inputLabel: {
+                      type: String,
+                      value: 'Chose an author'
+                  },
+
+                  /**
+                   * Class of the dropdown menu element, changes if an error is caught.
+                   */
+                  _class: {
+                      type: String,
+                      value: 'ok'
                   }
               };
           }
@@ -93,16 +120,32 @@
           }
 
           _makeAuthorsList(e) {
+              this._toOk();
               this.set(
                   '_sortedNames',
                   Array.from(new Set(Array.prototype.concat.apply([], e.detail.body.map(doc => doc.authFullName_s))))
               );
           }
 
+          _handleError() {
+              this._toError();
+              setTimeout(() => this.$.query.fetchAsJSON(), 5000);
+          }
+
           _backToNone(newVal) {
               if (newVal === '') {
                   this.$.listBox.select(null);
               }
+          }
+
+          _toOk() {
+              this.set('_class', 'ok');
+              this.set('_inputLabel', 'Chose an author');
+          }
+
+          _toError() {
+              this.set('_class', 'error');
+              this.set('_inputLabel', 'failed to fetch names');
           }
       }
 
