@@ -38,7 +38,7 @@
               }
 
               _formatData(body) {
-                  const collaborators = [];
+                  let collaborators = [];
 
                   let collaborator,
                       publication;
@@ -55,12 +55,15 @@
                               }
                           });
                   });
+
+                  collaborators = collaborators
+                      .sort((a, b) => b.publications.length - a.publications.length)
+                      .slice(0, Math.min(35, collaborators.length));
+
                   return collaborators;
               }
 
               _generateChart() {
-                  console.log(this._data);
-
                   setTimeout(() => {
                       if (this._sigma) {
                           this._sigma.graph.clear();

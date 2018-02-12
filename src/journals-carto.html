@@ -35,13 +35,18 @@
                       conferenceTitle = doc.conferenceTitle_s;
                       journalTitle = doc.journalTitle_s;
 
-                      if (conferenceTitle) {
-                          alreadySaved = rep.find(obj => obj.type === 'Conferences');
-                          title = 'Conferences';
-                      } else if (journalTitle) {
-                          alreadySaved = rep.find(journal => journal.title === journalTitle);
-                          title = journalTitle;
-                      }
+                      new Promise(resolve => {
+                          if (conferenceTitle) {
+                              title = 'conferences';
+                              alreadySaved = rep.find(obj => obj.type === 'conferences');
+                          } else if (journalTitle) {
+                              title = journalTitle;
+                              alreadySaved = rep
+                                  .filter(obj => obj.type === 'journal')
+                                  .find(journal => journal.title === journalTitle);
+                          }
+                          resolve(alreadySaved);
+                      });
 
                       publication = {halId: doc.halId_s, title: doc.title_s[0]};
 
@@ -50,11 +55,10 @@
                       } else {
                           rep.push({
                               title: title,
-                              type: conferenceTitle ? 'Conferences' : 'journal',
+                              type: conferenceTitle ? 'conferences' : 'journal',
                               publications: [publication]
                           });
                       }
-
                   });
 
                   return rep;
@@ -79,7 +83,7 @@
 
                   const root = d3.hierarchy({children: data})
                       .sum(d => d.value)
-                      .each(d => d.title = d.data.title || 'Other ');
+                      .each(d => d.title = d.data.title || 'other ');
 
                   const bubbles = svg.selectAll('.node')
                       .data(bubble(root).leaves())
@@ -100,27 +104,22 @@
                       .attr('clip-path', d => 'url(#clip-' + d.title + ')')
                       .attr('text-anchor', 'middle')
                       .selectAll('tspan')
-                      .data(d => {
-                          const res = JournalsCarto._shortenTitle(d.title);
-                          return res;
-                      })
+                      .data(d => JournalsCarto._shortenTitle(d.title))
                       .enter().append('tspan')
                       .attr('x', 0)
                       .attr('y', (d, i, nodes) => 13 + (i - nodes.length / 2 - 0.5) * 10)
-                      .text(d => {
-                          return d
-                      });
+                      .text(d => d);
 
                   bubbles.append('title')
                       .text(d => d.title + ':\n\n- ' + d.data.publications.map(pub => pub.title).join('\n- '));
               }
 
               static _shortenTitle(title) {
-                  if (title === 'Conferences' || title === 'Other') {
+                  if (title === 'conferences' || title === 'other') {
                       return [title];
                   }
 
-                  let res = title.split(' ');
+                  let res = title.replace(/\./g, ' ').split(' ');
                   if (res.length > 4) {
                       res = res.slice(0, 4);
                       res[3] += '...';

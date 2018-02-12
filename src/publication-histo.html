@@ -36,12 +36,13 @@
 
                   svg.html('');
 
-                  const g = svg.append('g').attr('transform', 'translate(0, 0)');
+                  const g = svg.append('g')
+                      .attr('transform', 'translate(0, 0)');
 
                   const x = d3.scaleLinear()
                       .domain([first - 1, latest + 2])
                       .range([0, width]);
-
+                  
                   const bins = d3.histogram()
                       .domain(x.domain())
                       .thresholds(x.ticks(latest - first + 1))
@@ -76,6 +77,8 @@
                   const axis = d3.axisBottom()
                       .tickFormat(d3.format('.0f'))
                       .scale(x);
+
+                  axis.ticks(latest - first + 2);
 
                   g.append('g')
                       .attr('class', 'axis axis--x')
