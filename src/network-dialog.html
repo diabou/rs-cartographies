@@ -1,0 +1,117 @@
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html"/>
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html"/>
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html"/>
+<link rel="import" href="../bower_components/web-animations-js/web-animations.min.html">
+<link rel="import" href="../bower_components/neon-animation/animations/scale-up-animation.html">
+<link rel="import" href="../bower_components/neon-animation/animations/fade-out-animation.html">
+
+<dom-module id="network-dialog">
+  <template>
+    <style>
+      app-toolbar {
+        @apply --layout-flex;
+        @apply --layout-horizontal;
+        font-size: 15px;
+        background-color: rgba(246, 242, 253, 0.51);
+        max-height: 30px;
+        margin-top: 0;
+        padding: 0;
+      }
+
+      paper-listbox {
+        margin: 0;
+        padding: 0;
+      }
+
+      paper-item {
+        cursor: pointer;
+      }
+
+      .text {
+        @apply --layout-flex;
+        padding-left: 10px;
+      }
+
+      .spacer {
+        width: 20px;
+      }
+
+      paper-icon-button {
+        --paper-icon-button: {
+          width: 30px;
+          height: 30px;
+        };
+      }
+    </style>
+
+    <paper-dialog id="dialog"
+                  always-on-top
+                  entry-animation="scale-up-animation"
+                  exit-animation="fade-out-animation">
+      <app-toolbar>
+        <div class="text" main-title>[[authorName]] : [[nbPublis]] publication(s)</div>
+        <div class="spacer"></div>
+        <paper-icon-button
+                noink
+                icon="close"
+                on-tap=close></paper-icon-button>
+      </app-toolbar>
+
+      <paper-listbox id="list" on-iron-select=_handleSelection>
+        <paper-item action="load-more">Load in current page</paper-item>
+        <paper-item action="switch-to">Switch to author page</paper-item>
+      </paper-listbox>
+
+    </paper-dialog>
+  </template>
+
+  <script>
+      class NetworkDialog extends Polymer.Element {
+          static get is() {
+              return 'network-dialog';
+          }
+
+          static get properties() {
+              return {
+                  authorName: {
+                      type: String
+                  },
+
+                  nbPublis: {
+                      type: Number
+                  }
+              }
+          }
+
+          open() {
+              this.$.dialog.open();
+          }
+
+          close() {
+              this.$.dialog.close();
+          }
+
+          _handleSelection(e) {
+              const item = e.detail.item;
+
+              if (item) {
+                  const action = item.getAttribute('action');
+                  const isSwitch = action === 'switch-to';
+
+                  if (action === 'load-more' || isSwitch) {
+                      this.dispatchEvent(new CustomEvent(action, {
+                          composed: isSwitch,
+                          bubbles: isSwitch,
+                          detail: {authorName: this.authorName}
+                      }));
+                  }
+
+                  this.close();
+                  this.$.list.select();
+              }
+          }
+      }
+
+      window.customElements.define('network-dialog', NetworkDialog);
+  </script>
+</dom-module>

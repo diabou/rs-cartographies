@@ -1,5 +1,6 @@
-<dom-module id="collaborators-network">
+<link rel="import" href="network-dialog.html">
 
+<dom-module id="collaborators-network">
   <script src="../bower_components/sigma.js/build/sigma.min.js"></script>
   <script>
       (function() {
@@ -32,19 +33,78 @@
                       div.id = 'chart';
                       svg.parentNode.replaceChild(div, svg);
 
-                      this.fillInTemplate(memorizedTemplate, '{"fl":"authFullName_s,halId_s,title_s"}', 'Collaborators');
+                      const dialog = document.createElement('network-dialog');
+                      dialog.id = 'dialog';
+                      dialog.setAttribute('on-load-more', '_loadCollaboratorPublications');
+                      memorizedTemplate.content.insertBefore(dialog, document.getElementById('query'));
+
+                      const queryParams = '{"fl":"authFullName_s,halId_s,title_s"}';
+                      this.fillInTemplate(memorizedTemplate, queryParams, 'Collaborators');
                   }
                   return memorizedTemplate;
               }
 
+              ready() {
+                  super.ready();
+                  this.set('_sigma', new sigma(this.$.chart));
+
+                  this._sigma.settings({
+                      labelThreshold: 2
+                  });
+
+                  this._sigma.bind('clickNode', e => {
+                      const node = e.data.node;
+
+                      if (node.id !== this.authorName) {
+
+                          const collaborator = this._data.find(col => col.name === node.id);
+                          if (collaborator) {
+                              this.$.dialog.set('authorName', collaborator.name);
+                              this.$.dialog.set('nbPublis', collaborator.publications.length);
+                              this.$.dialog.open();
+                          }
+                      }
+                  });
+
+                  this._sigma.bind('overNode', e => e.data.node.label = e.data.node.fullLabel);
+
+                  this._sigma.bind('outNode', e =>
+                      e.data.node.label = CollaboratorsNetwork._shortenString(e.data.node.label));
+              }
+
               _formatData(body) {
-                  let collaborators = [];
+                  let collaborators = this._makeFlatAuthorsList(body, this.authorName);
+
+                  collaborators = collaborators
+                      .sort((a, b) => b.publications.length - a.publications.length)
+                      .slice(0, Math.min(35, collaborators.length));
+
+                  const nbCol = collaborators.length;
+                  const maxNbCol = collaborators.reduce((acc, col) => Math.max(acc, col.publications.length), 0);
+                  let angle = i => -1 * i * 2.0 * Math.PI / nbCol - Math.PI / 12.0;
+
+                  let teta;
+
+                  collaborators.forEach((collaborator, i) => {
+                      teta = angle(i);
+
+                      collaborator.size = 2 + 2 * collaborator.publications.length / maxNbCol;
+                      collaborator.x = Math.cos(teta);
+                      collaborator.y = Math.sin(teta);
+                  });
+
+                  return collaborators;
+              }
+
+              _makeFlatAuthorsList(body) {
+                  const collaborators = [];
 
                   let collaborator,
                       publication;
 
                   body.forEach(doc => {
-                      publication = {title: doc.title_s, haliId: doc.halId_s};
+                      publication = {title: doc.title_s[0], halId: doc.halId_s};
+
                       doc.authFullName_s
                           .filter(auth => auth !== this.authorName)
                           .forEach(auth => {
@@ -56,52 +116,89 @@
                           });
                   });
 
-                  collaborators = collaborators
-                      .sort((a, b) => b.publications.length - a.publications.length)
-                      .slice(0, Math.min(35, collaborators.length));
-
                   return collaborators;
               }
 
               _generateChart() {
                   setTimeout(() => {
-                      if (this._sigma) {
-                          this._sigma.graph.clear();
-                          this._sigma.refresh();
-                      }
+                      this._sigma.graph.clear();
+                      this._sigma.refresh();
 
-                      this.set('_sigma', new sigma(this.$.chart));
                       this._sigma.graph.addNode({
-                          id: 'n0',
-                          label: this.authorName,
+                          id: this.authorName,
+                          label: CollaboratorsNetwork._shortenString(this.authorName),
                           x: 0,
                           y: 0,
-                          size: 3,
-                          color: '#0f16ff'
+                          size: 5,
+                          color: '#0f16ff',
+                          fullLabel: this.authorName
                       });
 
-                      const nbCol = this._data.length;
-                      let id;
 
-                      this._data.forEach((collaborator, i) => {
-                          id = 'n' + i + 1;
-
-                          this._sigma.graph.addNode({
-                              id: id,
-                              label: collaborator.name,
-                              x: Math.cos(i * 2.0 * Math.PI / nbCol),
-                              y: Math.sin(i * 2.0 * Math.PI / nbCol),
-                              size: 2,
-                              color: '#a01fff'
+                      this._data
+                          .filter(collaborator => collaborator.name !== this.authorName)
+                          .forEach((collaborator, i) => {
+                              this._sigma.graph.addNode({
+                              id: collaborator.name,
+                              label: CollaboratorsNetwork._shortenString(collaborator.name),
+                              x: collaborator.x,
+                              y: collaborator.y,
+                              size: collaborator.size,
+                              color: '#a01fff',
+                              fullLabel: collaborator.name
                           }).addEdge({
                               id: 'e' + i + 1,
-                              source: 'n0',
-                              target: id
+                              source: this.authorName,
+                              target: collaborator.name,
                           });
                       });
 
                       this._sigma.refresh();
                   });
+              }
+
+              _loadCollaboratorPublications(e) {
+                  this._sigma.graph.nodes().forEach(node => {
+                      if (node.type === 'publication') {
+                          this._sigma.graph.dropNode(node.id);
+                      }
+                  });
+
+                  const collaborator = this._data.find(col => col.name === e.detail.authorName);
+                  const nbPub = Math.min(collaborator.publications.length, 10);
+                  const teta = -1 * Math.asin(collaborator.y);
+
+                  console.log(Math.sign(collaborator.y));
+
+                  collaborator.publications.forEach((pub, i) => {
+                      if (i < 10) {
+                          try {
+                              this._sigma.graph.addNode({
+                                  id: pub.halId,
+                                  label: CollaboratorsNetwork._shortenString(pub.title),
+                                  x: 2 * Math.sign(collaborator.x) * Math.cos((teta - Math.PI / 12.0) + i * Math.PI / 6.0 / nbPub),
+                                  y: 2 * Math.sign(collaborator.y) * Math.abs(Math.sin((teta - Math.PI / 12.0) + i * Math.PI / 6.0 / nbPub)),
+                                  size: 2,
+                                  color: '#f203ff',
+                                  fullLabel: pub.title,
+                                  type: 'publication'
+                              });
+                          } catch(ignored) {
+                          } finally {
+                              this._sigma.graph.addEdge({
+                                  id: 'e' + collaborator.name + '-' + pub.halId,
+                                  source: collaborator.name,
+                                  target: pub.halId
+                              });
+                          }
+                      }
+                  });
+
+                  this._sigma.refresh();
+              }
+
+              static _shortenString(s) {
+                  return s.length < 33 ? s : s.slice(0, 30).concat('...');
               }
           }
 
