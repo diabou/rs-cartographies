@@ -19,12 +19,6 @@
 <dom-module id="rs-carto-app">
   <template>
     <style include="app-grid-style">
-      :host {
-        --app-grid-columns: 2;
-        --app-grid-item-height: 300px;
-        --app-grid-gutter: 8px;
-      }
-
       .flex {
         @apply --layout-flex;
       }
@@ -63,10 +57,12 @@
         margin: 8px auto auto;
       }
 
+      .container {
+        margin: 2px 2px 2px 2px;
+      }
+
       .histo {
-        max-height: 300px;
-        min-height: 200px;
-        margin: 0 5px 0 5px;
+        max-height: 200px;
       }
     </style>
 
@@ -77,7 +73,7 @@
         data="{{routeData}}">
     </app-route>
 
-    <app-header-layout>
+    <app-header-layout fullbleed>
 
       <app-header slot="header">
         <paper-material elevation="1">
@@ -91,20 +87,21 @@
 
       <iron-pages id="pages" class="horizontal flex" selected=0>
         <div class="home flex">Welcome</div>
+
         <div class="vertical flex">
 
-          <div class="histo horizontal flex">
-            <paper-material class="horizontal flex" elevation="1">
-              <publications-histo class="flex" author-name="[[routeData.author]]"></publications-histo>
+          <div class="horizontal flex">
+            <paper-material class="container horizontal flex" elevation="1">
+              <journals-carto class="flex" author-name=[[routeData.author]]></journals-carto>
+            </paper-material>
+            <paper-material class="container horizontal flex" elevation="1">
+              <collaborators-network class="flex" author-name="[[routeData.author]]"></collaborators-network>
             </paper-material>
           </div>
 
-          <div class="app-grid horizontal flex">
-            <paper-material class="horizontal flex" elevation="1">
-              <journals-carto class="flex" author-name=[[routeData.author]]></journals-carto>
-            </paper-material>
-            <paper-material class="horizontal flex" elevation="1">
-              <collaborators-network class="flex" author-name="[[routeData.author]]"></collaborators-network>
+          <div class="histo horizontal flex">
+            <paper-material class="container horizontal flex" elevation="1">
+              <publications-histo class="flex" author-name="[[routeData.author]]"></publications-histo>
             </paper-material>
           </div>
 
