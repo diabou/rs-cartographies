@@ -94,7 +94,7 @@
               <journals-carto class="flex" author-name=[[routeData.author]]></journals-carto>
             </paper-material>
             <paper-material class="container horizontal flex" elevation="1">
-              <collaborators-network class="flex" author-name="[[routeData.author]]"></collaborators-network>
+              <collaborators-network class="flex" author-name="[[routeData.author]]" on-switch-to=_switchTo></collaborators-network>
             </paper-material>
           </div>
 
@@ -155,6 +155,10 @@
           _backHome() {
               this.set('routeData.author', '');
               this.$.pages.select(0);
+          }
+
+          _switchTo(e) {
+              this.set('routeData.author', e.detail.authorName);
           }
       }
 
