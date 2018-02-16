@@ -16,10 +16,6 @@
         @apply --layout-flex;
       }
 
-      .vertical {
-        @apply --layout-vertical;
-      }
-
       .horizontal {
         @apply --layout-horizontal;
       }
@@ -43,6 +39,11 @@
 
       paper-item {
         cursor: pointer;
+      }
+
+      a  {
+        text-decoration: none;
+        color: black;
       }
 
       .text {
@@ -90,10 +91,10 @@
         </paper-listbox>
         <div class="flex" page="publication">
           <div class="center flex">
-            <paper-item>Read publication?</paper-item>
+            <paper-item>Go to HAL page?</paper-item>
           </div>
           <div class="center">
-            <paper-button href=[[_generateURL(publication.halId)]] on-tap="close">YES</paper-button>
+            <paper-button on-tap="close"><a href=[[_generateURL(publication.halId)]]>YES</a></paper-button>
             <paper-button on-tap=close>NO</paper-button>
           </div>
         </div>
