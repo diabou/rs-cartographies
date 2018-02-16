@@ -41,7 +41,7 @@
         cursor: pointer;
       }
 
-      a  {
+      a {
         text-decoration: none;
         color: black;
       }
@@ -67,21 +67,15 @@
       }
     </style>
 
-    <paper-dialog id="dialog"
-                  always-on-top
-                  entry-animation="scale-up-animation"
-                  exit-animation="fade-out-animation">
+    <paper-dialog id="dialog" always-on-top entry-animation="scale-up-animation" exit-animation="fade-out-animation">
 
       <app-toolbar class="horizontal flex">
         <iron-pages class="flex" selected=[[selectedPage]] attr-for-selected="page">
-          <div class="text flex" page="collaborator" main-title>[[authorName]] : [[nbPublis]] publication(s)</div>
+          <div class="text flex" page="collaborator" main-title>[[author.name]] : [[author.nbPublis]] publication(s)</div>
           <div class="text flex" page="publication" main-title>[[publication.name]]</div>
         </iron-pages>
         <div class="spacer"></div>
-        <paper-icon-button
-                noink
-                icon="close"
-                on-tap=close></paper-icon-button>
+        <paper-icon-button noink icon="close" on-tap=close></paper-icon-button>
       </app-toolbar>
 
       <iron-pages class="horizontal flex" selected=[[selectedPage]] attr-for-selected="page">
@@ -94,7 +88,7 @@
             <paper-item>Go to HAL page?</paper-item>
           </div>
           <div class="center">
-            <paper-button on-tap="close"><a href=[[_generateURL(publication.halId)]]>YES</a></paper-button>
+            <paper-button on-tap=close><a href=[[_generateURL(publication.halId)]]>YES</a></paper-button>
             <paper-button on-tap=close>NO</paper-button>
           </div>
         </div>
@@ -111,15 +105,11 @@
 
           static get properties() {
               return {
-                  authorName: {
+                  selectedPage: {
                       type: String
                   },
 
-                  nbPublis: {
-                      type: Number
-                  },
-
-                  selectedPage: {
+                  author: {
                       type: String
                   },
 
@@ -149,7 +139,7 @@
                       this.dispatchEvent(new CustomEvent(action, {
                           composed: isSwitch,
                           bubbles: isSwitch,
-                          detail: {authorName: this.authorName}
+                          detail: {authorName: this.author.name}
                       }));
                   }
 

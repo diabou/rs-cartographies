@@ -60,8 +60,10 @@
                           const collaborator = this._data.find(col => col.name === node.id);
                           if (collaborator) {
                               dialog.set('selectedPage', 'collaborator');
-                              dialog.set('authorName', collaborator.name);
-                              dialog.set('nbPublis', collaborator.publications.length);
+                              dialog.set('author', {
+                                  name: collaborator.name,
+                                  nbPublis: collaborator.publications.length
+                              });
                               dialog.open();
                           }
                       } else if (node.type === 'publication') {
@@ -203,7 +205,7 @@
               }
 
               static _shortenString(s) {
-                  return s.length < 33 ? s : s.slice(0, 30).concat('...');
+                  return s.length < 28 ? s : s.slice(0, 25).concat('...');
               }
           }
 
