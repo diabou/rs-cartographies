@@ -9,14 +9,14 @@
 
           let memorizedTemplate;
 
-          class JournalsCarto extends RsCartoChart {
+          class JournalsCarto extends RscChart {
               static get is() {
                   return 'journals-carto';
               }
 
               static get template() {
                   if (!memorizedTemplate) {
-                      memorizedTemplate = RsCartoChart.template.cloneNode(true);
+                      memorizedTemplate = RscChart.template.cloneNode(true);
                       this.fillInTemplate(memorizedTemplate, '{"fl":"journalTitle_s,title_s,conferenceTitle_s,haliId_s"}', 'Where he published');
                   }
                   return memorizedTemplate;

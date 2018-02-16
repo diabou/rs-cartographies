@@ -1,4 +1,4 @@
-<dom-module id="rs-carto-chart">
+<dom-module id="rsc-chart">
   <template>
     <style>
       :host {
@@ -61,9 +61,9 @@
      * @customElement
      * @polymer
      */
-    class RsCartoChart extends Polymer.Element {
+    class RscChart extends Polymer.Element {
         static get is() {
-            return 'rs-carto-chart';
+            return 'rsc-chart';
         }
 
         static get properties() {
@@ -124,14 +124,14 @@
         }
 
         _generateChart() {
-            throw new Error('RsCartoChart._generateChart is an abstract method and should be overwritten');
+            throw new Error('RscChart._generateChart is an abstract method and should be overwritten');
         }
 
         _formatData() {
-            throw new Error('RsCartoChart._formatData is an abstract method and should be overwritten');
+            throw new Error('RscChart._formatData is an abstract method and should be overwritten');
         }
     }
 
-    window.customElements.define(RsCartoChart.is, RsCartoChart);
+    window.customElements.define(RscChart.is, RscChart);
   </script>
 </dom-module>
