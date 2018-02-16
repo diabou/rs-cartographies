@@ -18,7 +18,7 @@
           static get properties() {
               return {
                   /**
-                   * base URL of the query
+                   * Base URL of the query.
                    */
                   baseURL: {
                       type: String,
@@ -26,7 +26,7 @@
                   },
 
                   /**
-                   * The institution to look data for
+                   * The institution to look data for.
                    */
                   institution: {
                       type: String,
@@ -34,7 +34,7 @@
                   },
 
                   /**
-                   * the 'q' parameter of the query
+                   * The 'q' parameter of the query.
                    */
                   query: {
                       type: String,
@@ -42,11 +42,20 @@
                   },
 
                   /**
-                   * other optional parameters
+                   * Other optional parameters.
                    */
                   params: {
                       type: String,
                       value: null
+                  },
+
+                  /**
+                   * The last received response.
+                   */
+                  lastResponse: {
+                      type: Object,
+                      value: () => {},
+                      notify: true
                   }
               };
           }
@@ -73,8 +82,11 @@
 
               fetch(this._requestURL)
                   .then(handleError)
-                  .then(json => this.dispatchEvent(new CustomEvent('response', {detail: {body: json.response.docs}})))
-                  .catch(e => this.dispatchEvent(new CustomEvent('error', {detail: {message: e.message}})));
+                  .then(json => {
+                      const res = json.response.docs;
+                      this.set('lastResponse', res);
+                      this.dispatchEvent(new CustomEvent('response', {detail: {body: res}}));
+                  }).catch(e => this.dispatchEvent(new CustomEvent('error', {detail: {message: e.message}})));
           }
       }
 

@@ -8,9 +8,27 @@
 <dom-module id="network-dialog">
   <template>
     <style>
-      app-toolbar {
+      :host {
+        @apply --layout-vertical;
+      }
+
+      .flex {
         @apply --layout-flex;
+      }
+
+      .vertical {
+        @apply --layout-vertical;
+      }
+
+      .horizontal {
         @apply --layout-horizontal;
+      }
+
+      iron-pages {
+        margin: 0;
+      }
+
+      app-toolbar {
         font-size: 15px;
         background-color: rgba(246, 242, 253, 0.51);
         max-height: 30px;
@@ -28,12 +46,16 @@
       }
 
       .text {
-        @apply --layout-flex;
         padding-left: 10px;
       }
 
       .spacer {
         width: 20px;
+      }
+
+      .center {
+        @apply --layout-horizontal;
+        @apply --layout-center-center;
       }
 
       paper-icon-button {
@@ -48,8 +70,12 @@
                   always-on-top
                   entry-animation="scale-up-animation"
                   exit-animation="fade-out-animation">
-      <app-toolbar>
-        <div class="text" main-title>[[authorName]] : [[nbPublis]] publication(s)</div>
+
+      <app-toolbar class="horizontal flex">
+        <iron-pages class="flex" selected=[[selectedPage]] attr-for-selected="page">
+          <div class="text flex" page="collaborator" main-title>[[authorName]] : [[nbPublis]] publication(s)</div>
+          <div class="text flex" page="publication" main-title>[[publication.name]]</div>
+        </iron-pages>
         <div class="spacer"></div>
         <paper-icon-button
                 noink
@@ -57,10 +83,21 @@
                 on-tap=close></paper-icon-button>
       </app-toolbar>
 
-      <paper-listbox id="list" on-iron-select=_handleSelection>
-        <paper-item action="load-more">Load in current page</paper-item>
-        <paper-item action="switch-to">Switch to author page</paper-item>
-      </paper-listbox>
+      <iron-pages class="horizontal flex" selected=[[selectedPage]] attr-for-selected="page">
+        <paper-listbox id="list" page="collaborator" on-iron-select=_handleSelection>
+          <paper-item action="load-more">Load in current graph</paper-item>
+          <paper-item action="switch-to">Switch to author page</paper-item>
+        </paper-listbox>
+        <div class="flex" page="publication">
+          <div class="center flex">
+            <paper-item>Read publication?</paper-item>
+          </div>
+          <div class="center">
+            <paper-button href=[[_generateURL(publication.halId)]] on-tap="close">YES</paper-button>
+            <paper-button on-tap=close>NO</paper-button>
+          </div>
+        </div>
+      </iron-pages>
 
     </paper-dialog>
   </template>
@@ -79,6 +116,15 @@
 
                   nbPublis: {
                       type: Number
+                  },
+
+                  selectedPage: {
+                      type: String
+                  },
+
+                  publication: {
+                      type: Object,
+                      value: () => {}
                   }
               }
           }
@@ -109,6 +155,10 @@
                   this.close();
                   this.$.list.select();
               }
+          }
+
+          _generateURL(halId) {
+              return 'https://hal.archives-ouvertes.fr/'.concat(halId);
           }
       }
 

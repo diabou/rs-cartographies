@@ -54,15 +54,20 @@
 
                   this._sigma.bind('clickNode', e => {
                       const node = e.data.node;
+                      const dialog = this.$.dialog;
 
-                      if (node.id !== this.authorName) {
-
+                      if (node.type === 'collaborator') {
                           const collaborator = this._data.find(col => col.name === node.id);
                           if (collaborator) {
-                              this.$.dialog.set('authorName', collaborator.name);
-                              this.$.dialog.set('nbPublis', collaborator.publications.length);
-                              this.$.dialog.open();
+                              dialog.set('selectedPage', 'collaborator');
+                              dialog.set('authorName', collaborator.name);
+                              dialog.set('nbPublis', collaborator.publications.length);
+                              dialog.open();
                           }
+                      } else if (node.type === 'publication') {
+                          dialog.set('selectedPage', 'publication');
+                          dialog.set('publication', {name: node.fullLabel, halId: node.id});
+                          dialog.open();
                       }
                   });
 
@@ -131,7 +136,8 @@
                           y: 0,
                           size: 5,
                           color: '#0f16ff',
-                          fullLabel: this.authorName
+                          fullLabel: this.authorName,
+                          type: 'main'
                       });
 
 
@@ -145,7 +151,8 @@
                               y: collaborator.y,
                               size: collaborator.size,
                               color: '#a01fff',
-                              fullLabel: collaborator.name
+                              fullLabel: collaborator.name,
+                              type: 'collaborator'
                           }).addEdge({
                               id: 'e' + i + 1,
                               source: this.authorName,
@@ -167,8 +174,6 @@
                   const collaborator = this._data.find(col => col.name === e.detail.authorName);
                   const nbPub = Math.min(collaborator.publications.length, 10);
                   const teta = -1 * Math.asin(collaborator.y);
-
-                  console.log(Math.sign(collaborator.y));
 
                   collaborator.publications.forEach((pub, i) => {
                       if (i < 10) {
