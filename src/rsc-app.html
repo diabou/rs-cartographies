@@ -15,7 +15,7 @@
 <link rel="import" href="journals-carto.html"/>
 <link rel="import" href="collaborators-network.html"/>
 
-<dom-module id="rs-carto-app">
+<dom-module id="rsc-app">
   <template>
     <style include="app-grid-style">
       .flex {
@@ -116,9 +116,9 @@
        * @customElement
        * @polymer
        */
-      class RsCartoApp extends Polymer.Element {
+      class RscApp extends Polymer.Element {
           static get is() {
-              return 'rs-carto-app';
+              return 'rsc-app';
           }
 
           static get properties() {
@@ -162,6 +162,6 @@
           }
       }
 
-      window.customElements.define(RsCartoApp.is, RsCartoApp);
+      window.customElements.define(RscApp.is, RscApp);
   </script>
 </dom-module>
