@@ -41,7 +41,7 @@
 
                   body.forEach(doc => {
                       if (doc.domain_s) {
-                          domain = doc.domain_s[1].substr(2) || doc.domain_s[0].substr(2);
+                          domain = doc.domain_s[1] ? doc.domain_s[1].substr(2) : doc.domain_s[0].substr(2);
                           journalTitle = doc.journalTitle_s || doc.conferenceTitle_s || 'other';
                           publication = {title: doc.title_s[0], halId: doc.halId_s};
                           alreadyExistingDomain = rep.find(dom => dom.label === domain);
@@ -136,20 +136,6 @@
                       transitionDuration: 500,
                       data: this._data,
                   });
-              }
-
-              static _shortenTitle(title) {
-                  if (title === 'conferences' || title === 'other') {
-                      return [title];
-                  }
-
-                  let res = title.split(' ');
-                  if (res.length > 4) {
-                      res = res.slice(0, 4);
-                      res[3] += '...';
-                  }
-
-                  return res;
               }
           }
 

@@ -138,7 +138,7 @@ psd3.Pie.prototype.mouseover = function(d) {
 psd3.Pie.prototype.mouseout = function(d) {
     d3.select(d.path)
         .style("fill", d.fill);
-    setTimeout(() => _this.tooltipDiv.style('display', 'none'), 2000);
+    _this.tooltipDiv.style('display', 'none')
 };
 
 psd3.Pie.prototype.drawPie = function(dataset) {
