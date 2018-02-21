@@ -1,0 +1,159 @@
+<script src="../psd3/psd3polymer.js"></script>
+
+<dom-module id="journals-pie">
+  <script>
+
+      (function() {
+          /**
+           * @customElement
+           * @polymer
+           */
+
+          let memorizedTemplate;
+
+          class JournalsPie extends RscChart {
+              static get is() {
+                  return 'journals-pie';
+              }
+
+              static get template() {
+                  if (!memorizedTemplate) {
+                      memorizedTemplate = RscChart.template.cloneNode(true);
+
+                      const svg = memorizedTemplate.content.getElementById('chart');
+                      const div = document.createElement('div');
+                      div.id = 'chart';
+                      svg.parentNode.replaceChild(div, svg);
+
+                      this.fillInTemplate(memorizedTemplate, '{"fl":"journalTitle_s,title_s,conferenceTitle_s,domain_s,halId_s"}', 'Where he published');
+                  }
+                  return memorizedTemplate;
+              }
+
+              _formatData(body) {
+                  const rep = [];
+
+                  let alreadyExistingDomain,
+                      alreadyExistingJournal,
+                      domain,
+                      journalTitle,
+                      publication;
+
+                  body.forEach(doc => {
+                      if (doc.domain_s) {
+                          domain = doc.domain_s[1].substr(2) || doc.domain_s[0].substr(2);
+                          journalTitle = doc.journalTitle_s || doc.conferenceTitle_s || 'other';
+                          publication = {title: doc.title_s[0], halId: doc.halId_s};
+                          alreadyExistingDomain = rep.find(dom => dom.label === domain);
+
+
+                          if (alreadyExistingDomain) {
+                              alreadyExistingDomain.value++;
+                              alreadyExistingJournal = alreadyExistingDomain.inner
+                                  .find(journal => journal.label === journalTitle);
+
+                              if (alreadyExistingJournal) {
+                                  alreadyExistingJournal.value ++;
+                                  alreadyExistingJournal.publications.push(publication);
+                              } else {
+                                  alreadyExistingDomain.inner.push({
+                                      value: 1,
+                                      label: journalTitle,
+                                      level: 1,
+                                      publications: [publication]
+                                  });
+                              }
+                          } else {
+                              rep.push({
+                                  value: 1,
+                                  label: domain,
+                                  level: 0,
+                                  inner: [
+                                      {
+                                          value: 1,
+                                          label: journalTitle,
+                                          level: 1,
+                                          publications: [publication]
+                                      }
+                                  ]
+                              });
+                          }
+
+                      }
+                  });
+
+                  return rep;
+              }
+
+              _generateChart() {
+                  this.$.chart.innerHTML = '';
+
+                  const dim = this._dimensions;
+
+                  const tooltipFunction = d => {
+                      if (d.level === 0) {
+                          return '<p>'
+                              .concat(d.label)
+                              .concat('</p>');
+                      } else if (d.level === 1) {
+                          let rep = '<p>'
+                              .concat(d.label)
+                              .concat(' : </p>')
+                              .concat('<p><list>');
+
+                          d.publications
+                              .map(p =>
+                                  '<li><a style="color: white" href="'
+                                      .concat(p.halId)
+                                      .concat('">')
+                                      .concat(p.title)
+                                      .concat('</a></li>')
+                              ).forEach(elem => rep = rep.concat(elem));
+
+                          rep = rep.concat('</list></p>');
+
+                          return rep;
+                      }
+                  };
+
+                  const labelFunction = d => {
+                      const data = d.data;
+
+                      if (data.level === 0) {
+                          return data.label;
+                      } else if (data.level === 1) {
+                          return data.value;
+                      }
+                  };
+
+                  new psd3.Pie({
+                      container: this.$.chart,
+                      height: dim[0],
+                      width: dim[1],
+                      gradient: true,
+                      tooltip: tooltipFunction,
+                      label: labelFunction,
+                      transitionDuration: 500,
+                      data: this._data,
+                  });
+              }
+
+              static _shortenTitle(title) {
+                  if (title === 'conferences' || title === 'other') {
+                      return [title];
+                  }
+
+                  let res = title.split(' ');
+                  if (res.length > 4) {
+                      res = res.slice(0, 4);
+                      res[3] += '...';
+                  }
+
+                  return res;
+              }
+          }
+
+          window.customElements.define(JournalsPie.is, JournalsPie);
+      })();
+  </script>
+</dom-module>

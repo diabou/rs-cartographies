@@ -42,7 +42,7 @@
       }
     </style>
 
-    <query-manager id="query" query=[[authorName]] on-response=_loadVisu></query-manager>
+    <data-fetcher id="query" query=[[authorName]] on-response=_loadVisu></data-fetcher>
 
     <div class="vertical flex">
       <iron-pages id="pages" class="vertical flex">
@@ -56,6 +56,12 @@
   </template>
 
   <script src="https://d3js.org/d3.v4.min.js"></script>
+  <script>
+      d3v4 = d3;
+      window.d3 = null
+  </script>
+  <script src="../bower_components/d3/d3.js"></script>
+
   <script>
     /**
      * @customElement
@@ -107,6 +113,11 @@
             }
         }
 
+        get _dimensions() {
+            const pages = d3v4.select(this.$.pages)._groups[0][0];
+            return [pages.clientHeight, pages.clientWidth];
+        }
+
         _loadVisu(e) {
             try {
                 this.set('_data', this._formatData(e.detail.body));
@@ -116,11 +127,6 @@
                 this.set('_errorMessage', 'ERROR : '.concat(e.message || e));
                 this.$.pages.select(2);
             }
-        }
-
-        get _dimensions() {
-            const pages = d3.select(this.$.pages)._groups[0][0];
-            return [pages.clientHeight, pages.clientWidth];
         }
 
         _generateChart() {

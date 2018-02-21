@@ -1,12 +1,12 @@
-<dom-module id="query-manager">
+<dom-module id="data-fetcher">
   <script>
       /**
        * @customElement
        * @polymer
        */
-      class QueryManager extends Polymer.Element {
+      class DataFetcher extends Polymer.Element {
           static get is() {
-              return 'query-manager';
+              return 'data-fetcher';
           }
 
           static get properties() {
@@ -84,6 +84,6 @@
           }
       }
 
-      window.customElements.define(QueryManager.is, QueryManager);
+      window.customElements.define(DataFetcher.is, DataFetcher);
   </script>
 </dom-module>

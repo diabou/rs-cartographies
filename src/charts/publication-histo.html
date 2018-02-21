@@ -27,8 +27,8 @@
 
               _generateChart(e) {
                   const
-                      formatCount = d3.format('.0f'),
-                      svg = d3.select(this.$.chart),
+                      formatCount = d3v4.format('.0f'),
+                      svg = d3v4.select(this.$.chart),
                       data = this._data,
                       first = data[0],
                       latest = data[data.length - 1],
@@ -39,18 +39,18 @@
                   const g = svg.append('g')
                       .attr('transform', 'translate(0, 0)');
 
-                  const x = d3.scaleLinear()
+                  const x = d3v4.scaleLinear()
                       .domain([first - 1, latest + 2])
                       .range([0, width]);
                   
-                  const bins = d3.histogram()
+                  const bins = d3v4.histogram()
                       .domain(x.domain())
                       .thresholds(x.ticks(latest - first + 1))
                       (this._data)
                       .filter(bin => bin.length !== 0);
 
-                  const y = d3.scaleLinear()
-                      .domain([0, d3.max(bins, d => d.length) + 2])
+                  const y = d3v4.scaleLinear()
+                      .domain([0, d3v4.max(bins, d => d.length) + 2])
                       .range([height, 0]);
 
                   const bar = g.selectAll('.bar')
@@ -74,8 +74,8 @@
                       .attr('text-anchor', 'middle')
                       .text(d => formatCount(d.length));
 
-                  const axis = d3.axisBottom()
-                      .tickFormat(d3.format('.0f'))
+                  const axis = d3v4.axisBottom()
+                      .tickFormat(d3v4.format('.0f'))
                       .scale(x);
 
                   axis.ticks(latest - first + 3);

@@ -12,7 +12,7 @@
 <link rel="import" href="rsc-chart.html"/>
 <link rel="import" href="authors-menu.html"/>
 <link rel="import" href="charts/publication-histo.html"/>
-<link rel="import" href="charts/journals-carto.html"/>
+<link rel="import" href="charts/journals-pie.html"/>
 <link rel="import" href="charts/collaborators-network.html"/>
 
 <dom-module id="rsc-app">
@@ -91,7 +91,7 @@
 
           <div class="horizontal flex">
             <paper-material class="container horizontal flex" elevation="1">
-              <journals-carto class="flex" author-name=[[routeData.author]]></journals-carto>
+              <journals-pie class="flex" author-name=[[routeData.author]]></journals-pie>
             </paper-material>
             <paper-material class="container horizontal flex" elevation="1">
               <collaborators-network class="flex" author-name="[[routeData.author]]" on-switch-to=_switchTo></collaborators-network>

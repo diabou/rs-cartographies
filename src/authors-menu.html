@@ -2,7 +2,7 @@
 <link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
 <link rel="import" href="../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../bower_components/web-animations-js/web-animations-next.min.html"/>
-<link rel="import" href="query-manager.html"/>
+<link rel="import" href="data-fetcher.html"/>
 
 <dom-module id="authors-menu">
   <template>
@@ -32,13 +32,13 @@
       }
     </style>
 
-    <query-manager
+    <data-fetcher
         id="query"
         params='{"fl":"authFullName_s"}'
         on-response=_toOk
         last-response={{_halData}}
         on-error=_handleError>
-    </query-manager>
+    </data-fetcher>
 
     <paper-dropdown-menu label=[[_inputLabel]] class$=[[_class]] on-iron-overlay-closed=_stop>
       <paper-listbox id="listBox" slot="dropdown-content" attr-for-selected="name" selected={{selected}}>
