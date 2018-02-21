@@ -1,6 +1,6 @@
 FROM node:6
 
-##cmd
+##cmd => you may need administrator privileges
 RUN npm install -g bower && \
     npm install -g polymer-cli &&\
     mkdir dataviz
